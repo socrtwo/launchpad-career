@@ -1,0 +1,36 @@
+name: Feature request
+description: Propose a capability or change.
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: Whose problem is it, and what do they do today instead?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Roadmap phase
+      options:
+        - "1 - Foundation"
+        - "2 - Onboarding"
+        - "3 - Career exploration"
+        - "4 - Employment tools"
+        - "5 - Backend and accounts"
+        - "6 - Production releases"
+        - Unsure
+  - type: textarea
+    id: data
+    attributes:
+      label: Data required
+      description: >
+        What would this need to collect from the user, if anything? Requests that add
+        data collection are reviewed against docs/privacy/privacy-design.md.

@@ -1,0 +1,21 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-raw-types: true
+  errors:
+    # Public API of a shipped product: missing awaits and dead code are bugs,
+    # not style notes.
+    unawaited_futures: error
+    dead_code: error
+
+linter:
+  rules:
+    - always_declare_return_types
+    - avoid_print
+    - prefer_const_constructors
+    - prefer_final_locals
+    - require_trailing_commas
+    - unawaited_futures
+    - use_super_parameters

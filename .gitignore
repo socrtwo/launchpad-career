@@ -1,0 +1,35 @@
+# Dart / Flutter
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+**/doc/api/
+*.iml
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Generated platform folders. Regenerate with:
+#   cd apps/launchpad_app && flutter create --platforms=android,ios,windows,macos,linux .
+apps/launchpad_app/android/
+apps/launchpad_app/ios/
+apps/launchpad_app/linux/
+apps/launchpad_app/macos/
+apps/launchpad_app/windows/
+
+# Editors
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Never commit these
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+key.properties
+.env
+.env.*
+google-services.json
+GoogleService-Info.plist

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/<owner>/launchpad-career/security/advisories/new
+    about: Please report security issues privately, never as a public issue.
+  - name: Career advice
+    url: https://github.com/<owner>/launchpad-career/discussions
+    about: This tracker is for the software. For questions about using the product, start a discussion.

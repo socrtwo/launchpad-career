@@ -1,0 +1,21 @@
+name: launchpad_ui
+description: Shared presentation widgets for Launchpad Career.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=3.27.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  launchpad_core:
+    path: ../launchpad_core
+  launchpad_domain:
+    path: ../launchpad_domain
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ">=5.0.0 <7.0.0"

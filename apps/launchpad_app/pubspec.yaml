@@ -1,0 +1,35 @@
+name: launchpad_app
+description: Launchpad Career - practical career guidance for students and recent graduates.
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=3.27.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^3.4.2
+  go_router: ^17.4.0
+  cupertino_icons: ^1.0.8
+  launchpad_core:
+    path: ../../packages/launchpad_core
+  launchpad_data:
+    path: ../../packages/launchpad_data
+  launchpad_domain:
+    path: ../../packages/launchpad_domain
+  launchpad_ui:
+    path: ../../packages/launchpad_ui
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ">=5.0.0 <7.0.0"
+
+flutter:
+  uses-material-design: true

@@ -1,0 +1,43 @@
+name: Accessibility issue
+description: A barrier for someone using assistive technology or a non-default setting.
+labels: ["accessibility", "triage"]
+body:
+  - type: textarea
+    id: barrier
+    attributes:
+      label: The barrier
+      description: What could you not do, and where?
+    validations:
+      required: true
+  - type: dropdown
+    id: assistive-tech
+    attributes:
+      label: Assistive technology or setting
+      multiple: true
+      options:
+        - Screen reader (TalkBack)
+        - Screen reader (VoiceOver)
+        - Screen reader (NVDA / JAWS)
+        - Keyboard only
+        - Switch access
+        - Large text / display scaling
+        - Reduce motion
+        - High contrast / inverted colours
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: wcag
+    attributes:
+      label: Related WCAG success criterion
+      description: If you know it, e.g. 1.4.3 Contrast (Minimum). Optional.
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Blocks the task entirely
+        - Task possible but difficult
+        - Cosmetic or confusing
+    validations:
+      required: true

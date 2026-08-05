@@ -1,0 +1,36 @@
+name: Bug report
+description: Something behaves incorrectly.
+labels: ["bug", "triage"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected, what you got instead.
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      multiple: true
+      options: [Web, Android, iOS, Windows, macOS, Linux, ChromeOS]
+    validations:
+      required: true
+  - type: input
+    id: flutter-version
+    attributes:
+      label: Flutter version
+      description: Output of `flutter --version`.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or stack trace
+      render: shell
+  - type: checkboxes
+    id: no-pii
+    attributes:
+      label: Privacy
+      options:
+        - label: This report contains no personal information about me or anyone else.
+          required: true

@@ -1,0 +1,9 @@
+# Root options exist so an editor opened at the repository root still analyses
+# sensibly. Each package carries its own analysis_options.yaml; those are what
+# CI runs against.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/build/**"
+    - "**/.dart_tool/**"
