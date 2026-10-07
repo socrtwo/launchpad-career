@@ -54,7 +54,7 @@ jobs:
         working-directory: apps/launchpad_app
       - run: flutter build web --release
         working-directory: apps/launchpad_app
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: web-build
           path: apps/launchpad_app/build/web
