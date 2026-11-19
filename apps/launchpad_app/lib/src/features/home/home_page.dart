@@ -25,6 +25,7 @@ class HomePage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 const _Masthead(),
+                const _Resume(),
                 const SizedBox(height: Spacing.xl),
                 Semantics(
                   header: true,
@@ -114,6 +115,43 @@ class _Masthead extends StatelessWidget {
   }
 }
 
+/// Shown only when there is something to come back to. It names what was in
+/// progress rather than guessing at how the person feels about it.
+class _Resume extends ConsumerWidget {
+  const _Resume();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppStrings.of(context);
+    final session = ref.watch(sessionProvider);
+    final location = Routes.resume(session);
+    if (location == null) return const SizedBox.shrink();
+
+    final goals = ref.watch(goalsProvider).value ?? const <Goal>[];
+    final goal =
+        goals.where((item) => item.id == session.selectedGoal).firstOrNull;
+    final name = session.preferredName;
+    final lines = <String>[
+      if (name != null) strings.resumeGreeting(name),
+      if (goal != null) strings.resumeBodyGoal(goal.title),
+      strings.resumeAnswers(session.profile.answeredCount, 5),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.only(top: Spacing.lg),
+      child: NoticeCard(
+        title: strings.resumeHeading,
+        text: lines.join(' '),
+        icon: Icons.history,
+        action: FilledButton.tonal(
+          onPressed: () => context.go(location),
+          child: Text(strings.resumeAction),
+        ),
+      ),
+    );
+  }
+}
+
 class _GoalSection extends ConsumerWidget {
   const _GoalSection({required this.goals});
 
@@ -148,7 +186,18 @@ class _GoalSection extends ConsumerWidget {
             child: FilledButton.icon(
               onPressed: selectedId == null
                   ? null
-                  : () => context.go(Routes.goalFor(selectedId)),
+                  : () {
+                      ref.read(sessionProvider.notifier).chooseGoal(selectedId);
+                      // The questions tailor the guidance; they are asked once
+                      // and never stand between a person and a goal.
+                      final finished =
+                          ref.read(sessionProvider).onboardingStatus.isFinished;
+                      context.go(
+                        finished
+                            ? Routes.goalFor(selectedId)
+                            : Routes.onboarding(OnboardingStep.first),
+                      );
+                    },
               icon: const Icon(Icons.arrow_forward),
               iconAlignment: IconAlignment.end,
               label: Text(strings.continueLabel),
@@ -222,15 +271,19 @@ class _Legal extends StatelessWidget {
           children: <Widget>[
             TextButton(
               onPressed: () => context.go(Routes.about),
-              child: const Text('About'),
+              child: Text(strings.footerAbout),
             ),
             TextButton(
               onPressed: () => context.go(Routes.privacy),
-              child: const Text('Privacy'),
+              child: Text(strings.footerPrivacy),
             ),
             TextButton(
               onPressed: () => context.go(Routes.accessibility),
-              child: const Text('Accessibility'),
+              child: Text(strings.footerAccessibility),
+            ),
+            TextButton(
+              onPressed: () => context.go(Routes.yourData),
+              child: Text(strings.yourDataTitle),
             ),
           ],
         ),

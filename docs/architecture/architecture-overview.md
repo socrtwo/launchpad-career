@@ -13,16 +13,19 @@ launchpad_core|   launchpad_domain
               \________/
 ```
 
-- **`launchpad_domain`** — pure Dart. Entities (`Goal`, `Session`, `Evidence`) and
-  repository interfaces. No Flutter, no I/O, no JSON. This is the layer that outlives
+- **`launchpad_domain`** — pure Dart. Entities (`Goal`, `Session`, `Profile`, `Evidence`)
+  and repository interfaces. No Flutter, no I/O, no JSON. This is the layer that outlives
   every UI rewrite, so it is kept boring.
-- **`launchpad_data`** — implementations of those interfaces. Today everything is
-  in-memory; a networked implementation is added beside these, not in place of them.
+- **`launchpad_data`** — implementations of those interfaces, still pure Dart. Catalogues
+  are in memory. The session is in memory and, after an explicit opt-in, mirrored through
+  the `KeyValueStore` interface; `SessionCodec` is where JSON lives. A networked
+  implementation is added beside these, not in place of them.
 - **`launchpad_core`** — design tokens, light and dark themes, breakpoints, and
   accessibility helpers (`Contrast`, `AppMotion`). Depends on Flutter but knows nothing
   about careers.
 - **`launchpad_ui`** — shared widgets: `GoalCard`, `GoalGrid`, `SecondaryChoiceTile`,
-  `ContentColumn`, `StatusLine`. Knows about domain entities, not about routing or state.
+  `OptionTile`, `NoticeCard`, `PageShell`, `ContentColumn`, `StatusLine`. Knows about
+  domain entities, not about routing or state.
 - **`launchpad_app`** — feature folders, routing, localisation, providers, tests.
 
 ### Why the domain package has no Flutter dependency
@@ -48,8 +51,10 @@ lib/src/
 ├── l10n/         String table and delegate
 └── features/
     ├── home/
+    ├── onboarding/
     ├── goal/
     ├── something_else/
+    ├── your_data/
     └── info/
 ```
 
@@ -64,7 +69,17 @@ Riverpod. Three kinds of provider are in use, and there is no fourth pattern:
 - `Provider` for dependency wiring (`goalCatalogRepositoryProvider`,
   `sessionRepositoryProvider`, `routerProvider`). Tests override these, nothing else.
 - `FutureProvider` for repository reads (`goalsProvider`).
-- `Notifier` for UI state a user can change (`SelectedGoalController`).
+- `Notifier` for state a user can change (`SelectedGoalController`, `SessionController`,
+  `LocalDataController`). The session is read synchronously from its repository and
+  written back through the notifier; there is deliberately no `StreamProvider`.
+
+### Where plugins live
+
+`launchpad_data` is pure Dart, so it cannot depend on a Flutter plugin. It defines the
+three-method `KeyValueStore` interface; the adapter over `shared_preferences`
+(`SharedPreferencesStore`) lives in the app and is injected in `main`. Until `main`
+supplies it the store is in memory, which is what every test runs against. The adapter is
+allow-listed to the two keys the session repository owns.
 
 Note for future contributors: Riverpod 3 does not export the `Override` type, so test
 helpers cannot declare `List<Override>` parameters. `test/helpers.dart` builds the override
@@ -77,10 +92,12 @@ list internally for exactly this reason.
 | Route | Purpose |
 | --- | --- |
 | `/` | Home: goal selection |
-| `/goal?id=<slug>` | Placeholder destination for a selected goal |
+| `/onboarding/<step>` | One onboarding question, by slug; `review` shows every answer |
+| `/goal?id=<slug>` | Destination for a selected goal |
 | `/something-else` | Open-text entry point |
+| `/your-data` | Storage opt-in, export, deletion |
 | `/about` | Product scope and disclaimers |
-| `/privacy` | Placeholder for the reviewed privacy notice |
+| `/privacy` | What this build does with data; not yet a reviewed notice |
 | `/accessibility` | Placeholder for the accessibility statement |
 
 Goals are addressed by **slug**, never by enum index. Reordering `GoalId` must not silently
@@ -128,3 +145,6 @@ reduce-motion silently asserts nothing. `test/helpers.dart` sets these on the te
   entirely rather than animating over zero milliseconds. See `_RevealedDescription`.
 - `tester.binding.setSurfaceSize` does not feed through to `MediaQuery`; layout tests that
   rely on it run at the default 800×600 and pass for the wrong reason.
+- `go_router` builds one page per route *pattern*. For `/onboarding/:step` that means the
+  page's `State` is reused when only the parameter changes, so `initState` runs once for
+  the whole sequence. The route builder keys the page widget by step.

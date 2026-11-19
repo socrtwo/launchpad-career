@@ -1,7 +1,7 @@
 # Roadmap
 
-Phase 1 is done. Everything after it is planned, not built. Progress claims in the
-interface must match this document.
+Phases 1 and 2 are done. Everything after them is planned, not built. Progress claims in
+the interface must match this document.
 
 ## Phase 1 — Foundation (complete)
 
@@ -16,15 +16,17 @@ interface must match this document.
 - [x] Accessibility: keyboard, semantics, targets, text scaling, reduce-motion — tested
 - [x] Docs: architecture, product, tone, accessibility, privacy, recommendations
 
-## Phase 2 — Onboarding
+## Phase 2 — Onboarding (complete)
 
-- [ ] Preferred name (optional, skippable, never required)
-- [ ] Current education level
-- [ ] Planned education
-- [ ] Primary goal carried forward from the home selection
-- [ ] Interests and priorities
-- [ ] Anonymous session support with explicit opt-in before anything is stored
-- [ ] Resume-where-you-left-off, local only
+- [x] Preferred name (optional, skippable, never required)
+- [x] Current education level
+- [x] Planned education
+- [x] Primary goal carried forward from the home selection
+- [x] Interests and priorities
+- [x] Anonymous session support with explicit opt-in before anything is stored
+- [x] Resume-where-you-left-off, local only
+- [x] Export and deletion of everything held, shipped with storage rather than after it
+- [x] Written retention schedule (`docs/privacy/retention.md`)
 
 ## Phase 3 — Career exploration
 

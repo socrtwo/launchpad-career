@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:launchpad_app/src/app/app.dart';
 import 'package:launchpad_app/src/app/providers.dart';
+import 'package:launchpad_data/launchpad_data.dart';
 import 'package:launchpad_domain/launchpad_domain.dart';
 import 'package:launchpad_ui/launchpad_ui.dart';
 
@@ -19,6 +20,8 @@ import 'package:launchpad_ui/launchpad_ui.dart';
 Future<void> pumpApp(
   WidgetTester tester, {
   GoalCatalogRepository? goalCatalog,
+  KeyValueStore? store,
+  bool storageAvailable = true,
   Size surfaceSize = const Size(1280, 900),
   Brightness platformBrightness = Brightness.light,
   double textScaleFactor = 1.0,
@@ -54,6 +57,9 @@ Future<void> pumpApp(
       overrides: [
         if (goalCatalog != null)
           goalCatalogRepositoryProvider.overrideWithValue(goalCatalog),
+        if (store != null) keyValueStoreProvider.overrideWithValue(store),
+        if (!storageAvailable)
+          durableStorageAvailableProvider.overrideWithValue(false),
       ],
       child: const LaunchpadApp(),
     ),
@@ -77,4 +83,34 @@ class FailingGoalCatalogRepository implements GoalCatalogRepository {
 
   @override
   Future<Goal?> goalById(GoalId id) async => throw StateError('offline');
+}
+
+/// Taps a control that may be below the fold, scrolling it into view first.
+Future<void> tapVisible(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  await tester.tap(finder);
+  await tester.pumpAndSettle();
+}
+
+/// Chooses a goal on the home screen and presses Continue.
+Future<void> chooseGoalAndContinue(
+  WidgetTester tester, {
+  String title = 'Help me find an internship or job',
+}) async {
+  await tapVisible(tester, find.text(title));
+  await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue'));
+}
+
+/// A store whose writes always fail, for exercising the storage error path.
+class FailingKeyValueStore implements KeyValueStore {
+  @override
+  String? read(String key) => null;
+
+  @override
+  Future<void> write(String key, String value) async =>
+      throw StateError('disk full');
+
+  @override
+  Future<void> delete(String key) async {}
 }
