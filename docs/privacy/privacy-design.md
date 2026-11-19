@@ -2,20 +2,29 @@
 
 ## Position
 
-Data minimisation is a design constraint, not a later feature. The product currently
-collects nothing, stores nothing durably, and transmits nothing. Everything below describes
-how that is kept true as features arrive.
+Data minimisation is a design constraint, not a later feature. The product collects
+nothing by default, stores nothing durably unless the person opts in, and transmits
+nothing they enter. Everything below describes how that is kept true as features arrive.
 
-## Current state (Phase 1)
+## Current state (Phase 2)
 
-- No account, no name, no email, no device identifier.
-- `Session` holds an optional preferred name and the free text typed into "Something else",
-  both in memory only, both cleared when the process ends.
-- `InMemorySessionRepository` is deliberately not backed by `shared_preferences` or a
-  database. Nothing the user types survives a restart until there is a consent flow and a
-  documented retention policy.
+- No account, no email, no device identifier.
+- `Session` holds the chosen goal, an optional `Profile` (preferred name, education so
+  far, planned education, interests, priorities), the onboarding step reached, and the
+  free text typed into "Something else". All of it is optional and all of it is something
+  the person chose or typed; nothing is inferred.
+- Everything lives in memory until the person presses **Save on this device**.
+  `PersistentSessionRepository` then mirrors the session to the platform preference store
+  (browser local storage on the web). The free text is never written, opt-in or not.
+- The opt-in, the twelve-month expiry, export and deletion are specified in
+  [`retention.md`](retention.md) and enforced by tests in `packages/launchpad_data/test`
+  and `apps/launchpad_app/test/your_data_test.dart`.
+- Every question states why it is asked next to the question, and every one can be
+  skipped.
 - No analytics, advertising, attribution, or crash-reporting SDK is in the dependency tree.
-  Check with `flutter pub deps` before adding anything.
+  Check with `flutter pub deps` before adding anything. The only plugin is
+  `shared_preferences`.
+- Nothing logs. A failed write is reported to the person on screen and nowhere else.
 
 ## Rules for future work
 
@@ -38,13 +47,14 @@ how that is kept true as features arrive.
 
 | Item | Where | Status |
 | --- | --- | --- |
-| Privacy notice | `/privacy` route | placeholder text |
+| Privacy notice | `/privacy` route | describes this build; not a reviewed notice |
 | Terms of use | not built | missing |
-| Consent management | not built | missing |
-| Account deletion | not built | missing |
-| Data export | not built | missing |
-| Retention schedule | not written | missing |
-| Sub-processor list | not written | missing |
+| Consent for local storage | `/your-data`, onboarding review | built |
+| Local data export | `/your-data` | built (on screen and to the clipboard) |
+| Local data deletion | `/your-data` | built |
+| Retention schedule | `docs/privacy/retention.md` | written for local data |
+| Account deletion | no accounts yet | Phase 5 |
+| Sub-processor list | no processors yet | Phase 5 |
 
 ## No compliance claims
 

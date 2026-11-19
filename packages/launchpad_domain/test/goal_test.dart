@@ -46,12 +46,16 @@ void main() {
     test('is anonymous until a preferred name is given', () {
       const session = Session();
       expect(session.isAnonymous, isTrue);
-      expect(session.copyWith(preferredName: 'Sam').isAnonymous, isFalse);
+      final named = session.copyWith(
+        profile: session.profile.copyWith(preferredName: 'Sam'),
+      );
+      expect(named.isAnonymous, isFalse);
+      expect(named.preferredName, 'Sam');
     });
 
     test('can clear the selected goal', () {
       const session = Session(selectedGoal: GoalId.direction);
-      expect(session.copyWith(clearSelectedGoal: true).selectedGoal, isNull);
+      expect(session.copyWith(selectedGoal: null).selectedGoal, isNull);
     });
   });
 }

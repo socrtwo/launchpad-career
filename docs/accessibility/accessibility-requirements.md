@@ -18,6 +18,10 @@ requirements the code is written and tested against.
 | Reduce-motion produces no animation | `accessibility_test.dart` |
 | Layout survives 2× text scale without overflow | `home_page_test.dart` |
 | One / two / three columns at phone / tablet / desktop | `responsive_test.dart` |
+| Every onboarding question and the data page meet contrast, target-size and labelling guidelines in both themes | `onboarding_test.dart`, `your_data_test.dart` |
+| Every onboarding question survives 2× text on a 360dp-wide phone | `onboarding_test.dart` |
+| Answers are reachable by Tab and activated by Space; single-choice answers are announced as a group, choose-any answers as checkboxes | `onboarding_test.dart`, `packages/launchpad_ui/test/option_tile_test.dart` |
+| Progress is given in words ("Step 2 of 6"), not only as a bar | `onboarding_test.dart` |
 
 ## Design rules
 

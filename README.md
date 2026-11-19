@@ -14,22 +14,17 @@ guaranteed-employment claims.
 
 ## Project status
 
-**Phase 1 (Foundation) — implemented and verified.** The responsive home screen, theming,
-routing, accessibility work, and mock data layer are done and tested. Everything past the
-home screen is a described placeholder, clearly labelled as such in the interface.
+**Phases 1 and 2 — implemented and verified.** The responsive home screen, theming,
+routing, accessibility work, onboarding questions, and opt-in local storage with export
+and deletion are done and tested. Each goal's own tools are still a described placeholder,
+clearly labelled as such in the interface.
 
-Verified locally against Flutter 3.44.8 / Dart 3.12.2:
+Verified against Flutter 3.44.8 / Dart 3.12.2 with `./tool/dev.sh ci` (format check,
+analyze, and every package's tests). The command prints the current test counts; they are
+not repeated here because they go stale.
 
-| Check | Result |
-| --- | --- |
-| `dart format --output=none --set-exit-if-changed apps packages` | clean, 42 files |
-| `flutter analyze` (all five packages) | no issues |
-| `flutter test` (app) | 27 passing |
-| `flutter test` (core / domain / data / ui) | 11 / 6 / 5 / 2 passing |
-| `flutter build web --release` | builds |
-
-Not yet verified: Android, iOS, Windows, macOS and Linux builds (see
-[Known limitations](#known-limitations)).
+Not yet verified: iOS and Linux builds. Android, Windows and macOS debug builds and the web
+release build run in CI (see [Known limitations](#known-limitations)).
 
 ## Target audience
 
@@ -69,7 +64,7 @@ launchpad-career/
 ├── packages/
 │   ├── launchpad_core/         Design tokens, themes, breakpoints, a11y helpers
 │   ├── launchpad_domain/       Pure Dart: entities + repository interfaces
-│   ├── launchpad_data/         In-memory repository implementations (mock data)
+│   ├── launchpad_data/         Repository implementations, opt-in local persistence
 │   └── launchpad_ui/           Shared widgets (goal card, grid, tiles)
 ├── docs/
 ├── .github/
@@ -189,10 +184,10 @@ in bulk with `tool/create_issues.sh` (requires the `gh` CLI).
 
 ## Known limitations
 
-- Only Phase 1 is implemented. Every goal leads to a placeholder page that describes the
-  planned flow rather than performing it.
-- All content is mock data. There is no backend, no persistence, and no recommendation
-  engine; nothing survives an app restart.
+- Phases 1 and 2 are implemented. After the onboarding questions, every goal still leads
+  to a page that describes its planned tools rather than providing them.
+- There is no backend and no recommendation engine. Answers survive a restart only if the
+  person chooses "Save on this device"; they can be exported or deleted under Your data.
 - Web, and only web, has been build-verified here. Android, iOS, Windows, macOS and Linux
   builds are wired into CI but have not been run on this machine.
 - Localisation is structured but single-locale (`en`). Strings live in

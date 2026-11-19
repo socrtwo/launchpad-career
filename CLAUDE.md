@@ -7,20 +7,23 @@ this file is the summary you follow by default. When in doubt, the docs win — 
 
 A career-planning and employment-guidance tool for undergraduates, graduate students,
 recent graduates, and career changers. It is **not** a mental-health service, diagnostic
-tool, job board, or promise of employment. Phase 1 (foundation, mock data) is complete;
-everything else is planned, not built, and the interface must say so honestly
+tool, job board, or promise of employment. Phases 1 (foundation) and 2 (onboarding, opt-in
+local storage) are complete; everything else is planned, not built, and the interface must
+say so honestly
 (`docs/product/roadmap.md`, `docs/product/product-principles.md`).
 
 ## Architecture rules (`docs/architecture/architecture-overview.md`)
 
 Five path-linked packages with one-way dependencies:
 
-- `packages/launchpad_domain` — pure Dart entities (`Goal`, `Session`, `Evidence`) and
-  repository interfaces. **No Flutter, no I/O, no JSON.** If a design decision reaches
+- `packages/launchpad_domain` — pure Dart entities (`Goal`, `Session`, `Profile`,
+  `Evidence`) and repository interfaces. **No Flutter, no I/O, no JSON.** If a design decision reaches
   into this package, it is in the wrong place (e.g. `Goal` carries a `GoalIcon` enum,
   never `IconData`).
-- `packages/launchpad_data` — repository implementations. Currently in-memory; networked
-  implementations go **beside** these, not in place of them.
+- `packages/launchpad_data` — repository implementations, pure Dart (no Flutter plugins:
+  storage goes through the `KeyValueStore` interface and the plugin adapter lives in the
+  app). JSON lives here (`SessionCodec`). Networked implementations go **beside** these,
+  not in place of them.
 - `packages/launchpad_core` — design tokens, themes, breakpoints, accessibility helpers.
   Depends on Flutter, knows nothing about careers.
 - `packages/launchpad_ui` — shared widgets. Knows domain entities, not routing or state.
@@ -68,14 +71,17 @@ out-of-scope situations to human services — see
 
 ## Privacy rules (`docs/privacy/privacy-design.md`)
 
-Data minimisation is a design constraint. The product currently collects nothing, stores
-nothing durably, transmits nothing — keep it that way:
+Data minimisation is a design constraint. The product collects nothing by default, stores
+nothing durably without an explicit opt-in, and transmits nothing the person enters — keep
+it that way:
 
 - No analytics, advertising, attribution, or crash-reporting SDKs in the dependency tree.
   Check with `flutter pub deps` before adding any dependency.
-- `InMemorySessionRepository` is deliberately not backed by `shared_preferences` or a
-  database. Nothing the user types may survive a restart until a consent flow and a
-  documented retention policy exist.
+- Nothing is written to the device before the person presses "Save on this device"
+  (`PersistentSessionRepository.enableStorage`). Turning saving off erases the copy. The
+  "Something else" free text is never written, opt-in or not. Any new stored field needs a
+  row in `docs/privacy/retention.md` and a test, and export and deletion must cover it in
+  the same change.
 - **Never log personal information** — no user text, answers, or identifiers in logs,
   crash reports, or breadcrumbs. Free text is the highest-risk field.
 - Ask only what changes the answer; explain at the point of asking; protected
@@ -115,6 +121,11 @@ scale. Do not claim conformance anywhere; the audit has not happened.
   for this reason.
 - Widget tests pump the real `LaunchpadApp` with the real router and theme, not a
   simplified harness — a test that passes against a stand-in tree proves little.
+- **`go_router` reuses a page's `State` across values of a path parameter** (one page per
+  route pattern). Key the page widget by the parameter if `initState` must run per value.
+  See the `/onboarding/:step` route.
+- **`flutter analyze` fails on infos**, including `require_trailing_commas` in tests. Run
+  `./tool/dev.sh ci` rather than relying on `flutter test` alone.
 
 ## Run the tests before claiming work is done
 

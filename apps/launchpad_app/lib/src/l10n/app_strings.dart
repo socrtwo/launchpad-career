@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'data_strings.dart';
+import 'onboarding_strings.dart';
+
 /// Hand-written localisation table.
 ///
 /// Why not `gen_l10n`/ARB yet: codegen adds a build step to every checkout for
@@ -9,7 +12,7 @@ import 'package:flutter/material.dart';
 /// intentionally *not* here - they come from the catalogue repository, because
 /// they are editorial content destined for a CMS.
 @immutable
-class AppStrings {
+class AppStrings with OnboardingStrings, DataStrings {
   const AppStrings();
 
   static const AppStrings en = AppStrings();
@@ -53,9 +56,23 @@ class AppStrings {
 
   String get whatHappensNext => 'What happens next';
 
-  String get phaseOneNotice =>
-      'This build is an early preview. The flow below is described, not yet '
-      'implemented.';
+  String get goalToolsNotice =>
+      'This build is an early preview. The questions and your saved answers '
+      'work today. The step described below is planned, not yet built.';
+
+  String get goalLinkUnknown => 'That goal link is not one we recognise.';
+
+  String get pageNotFoundTitle => 'Page not found';
+
+  String get pageNotFoundBody => 'That page does not exist.';
+
+  String get goToStart => 'Go to the start';
+
+  String get footerAbout => 'About';
+
+  String get footerPrivacy => 'Privacy';
+
+  String get footerAccessibility => 'Accessibility';
 
   String get somethingElsePrompt => 'What is on your mind?';
 
@@ -66,8 +83,8 @@ class AppStrings {
       'making the decision hard.';
 
   String get somethingElsePrivacyNote =>
-      'What you type stays on this device in this preview build. Nothing is '
-      'sent anywhere, and you do not need an account.';
+      'What you type stays on this device until you close the app. It is not '
+      'sent to us and it is never saved, and you do not need an account.';
 
   String get submitLabel => 'Send';
 
@@ -86,9 +103,10 @@ class AppStrings {
   String get privacyTitle => 'Privacy';
 
   String get privacyBody =>
-      'Placeholder. Before release this page must carry the reviewed privacy '
-      'notice, the terms of use, and controls for consent, data export, and '
-      'account deletion.';
+      'This is not yet a reviewed privacy notice; one must be published before '
+      'release. What is true of this build: there are no accounts, what you '
+      'enter stays on this device, nothing is saved unless you choose it, and '
+      'you can see or delete it at any time under Your data.';
 
   String get accessibilityTitle => 'Accessibility';
 
