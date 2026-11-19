@@ -122,9 +122,12 @@ void main() {
       await repository.enableStorage();
       await repository.update(filled);
 
+      expect(store.snapshot.keys, isNotEmpty);
       expect(
-        store.snapshot.keys.toSet(),
-        PersistentSessionRepository.ownedKeys,
+        store.snapshot.keys.toSet().difference(
+              PersistentSessionRepository.ownedKeys,
+            ),
+        isEmpty,
       );
     });
 

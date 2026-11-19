@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launchpad_domain/launchpad_domain.dart';
 
+import '../features/account/account_page.dart';
 import '../features/explore/compare_page.dart';
 import '../features/explore/explore_page.dart';
 import '../features/explore/occupation_page.dart';
@@ -29,6 +30,7 @@ abstract final class Routes {
   static const String somethingElse = '/something-else';
   static const String onboardingBase = '/onboarding';
   static const String yourData = '/your-data';
+  static const String account = '/account';
   static const String explore = '/explore';
   static const String occupationBase = '/occupation';
   static const String compareBase = '/compare';
@@ -233,6 +235,11 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((ref) {
         path: Routes.progress,
         name: 'progress',
         builder: (context, state) => const ProgressPage(),
+      ),
+      GoRoute(
+        path: Routes.account,
+        name: 'account',
+        builder: (context, state) => const AccountPage(),
       ),
       GoRoute(
         path: Routes.yourData,

@@ -1,8 +1,9 @@
 # Roadmap
 
-Phases 1, 2 and 4 are done and Phase 3 is done except for importing real figures.
-Everything after that is planned, not built. Progress claims in the interface must match
-this document.
+Phases 1, 2, 4 and 5 are built and Phase 3 is built except for importing real figures.
+"Built" means implemented and tested in this repository. It does not mean deployed,
+audited or reviewed: those are Phase 6. Progress claims in the interface must match this
+document.
 
 ## Phase 1 — Foundation (complete)
 
@@ -59,13 +60,24 @@ All tool guidance is an AI-assisted draft, labelled as such in the interface, an
 review by a careers adviser (`docs/product/content-review.md`). The tools structure a
 person's own work; none of them sees a résumé or a profile, and none grades the person.
 
-## Phase 5 — Backend and accounts
+## Phase 5 — Backend and accounts (built; not deployed, not independently reviewed)
 
-- [ ] Authentication (optional, never a gate on exploration)
-- [ ] Secure profiles
-- [ ] Data synchronisation
-- [ ] Consent management, data export, account deletion
-- [ ] Administrative content management for the goal and occupation catalogues
+- [x] Authentication (optional, never a gate on exploration) — a handle and a passphrase;
+      no email address is collected, so there is no passphrase reset
+- [x] Secure profiles — one document per account behind a bearer token; passphrases are
+      salted PBKDF2-HMAC-SHA256, tokens are stored hashed, sign-in is rate limited. The
+      design is written down for a reviewer in `services/launchpad_server/README.md`;
+      **no independent security review has happened** (Phase 6)
+- [x] Data synchronisation — explicit: nothing is sent until the person signs in, turns
+      sync on and presses "Sync now". A difference between copies is settled by the
+      person, never silently
+- [x] Consent management, data export, account deletion — on the service and in the app
+- [x] Administrative content management for the goal and occupation catalogues —
+      publish, validate and roll back through the server and
+      `packages/launchpad_data/tool/catalog.dart`. There is no admin web interface
+
+The server (`services/launchpad_server`) is not deployed anywhere. An app built without
+`--dart-define=LAUNCHPAD_API_URL=…` has no accounts and makes no requests.
 
 ## Phase 6 — Production releases
 

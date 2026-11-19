@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'account_strings.dart';
 import 'data_strings.dart';
 import 'explore_strings.dart';
 import 'onboarding_strings.dart';
@@ -15,7 +16,12 @@ import 'tools_strings.dart';
 /// they are editorial content destined for a CMS.
 @immutable
 class AppStrings
-    with OnboardingStrings, DataStrings, ExploreStrings, ToolsStrings {
+    with
+        OnboardingStrings,
+        DataStrings,
+        ExploreStrings,
+        ToolsStrings,
+        AccountStrings {
   const AppStrings();
 
   static const AppStrings en = AppStrings();

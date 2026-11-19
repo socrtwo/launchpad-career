@@ -31,7 +31,7 @@ jobs:
         run: ./tool/dev.sh get
 
       - name: Check formatting
-        run: dart format --output=none --set-exit-if-changed apps packages
+        run: dart format --output=none --set-exit-if-changed apps packages services
 
       - name: Analyze
         run: ./tool/dev.sh analyze

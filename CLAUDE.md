@@ -8,13 +8,14 @@ this file is the summary you follow by default. When in doubt, the docs win — 
 A career-planning and employment-guidance tool for undergraduates, graduate students,
 recent graduates, and career changers. It is **not** a mental-health service, diagnostic
 tool, job board, or promise of employment. Phases 1 (foundation), 2 (onboarding, opt-in
-local storage), 3 (career exploration) and 4 (employment tools) are built; `docs/product/roadmap.md` is the
+local storage), 3 (career exploration), 4 (employment tools) and 5 (optional accounts and
+sync) are built; `docs/product/roadmap.md` is the
 record of what is and is not done, and the interface must say the same thing honestly
 (`docs/product/roadmap.md`, `docs/product/product-principles.md`).
 
 ## Architecture rules (`docs/architecture/architecture-overview.md`)
 
-Five path-linked packages with one-way dependencies:
+Five path-linked app packages with one-way dependencies, plus a standalone server:
 
 - `packages/launchpad_domain` — pure Dart entities (`Goal`, `Session`, `Profile`,
   `Workspace`, `Occupation`, `LaborStats`, `Evidence`), repository interfaces, and the
@@ -29,6 +30,9 @@ Five path-linked packages with one-way dependencies:
   Depends on Flutter, knows nothing about careers.
 - `packages/launchpad_ui` — shared widgets. Knows domain entities, not routing or state.
 - `apps/launchpad_app` — feature folders, routing, l10n, providers, tests.
+- `services/launchpad_server` — the optional account and sync server. Pure Dart, depends
+  on none of the above. `launchpad_data` dev-depends on it so the client's contract tests
+  run against the real handler; keep that direction.
 
 Other standing rules:
 
@@ -107,6 +111,12 @@ it that way:
   characteristics are not collected.
 - Anonymous stays first-class: sign-in is never a gate on exploration. Local first.
   Deletion and export must exist before any durable storage ships.
+- **Accounts are optional at every level.** No route guard, no feature that checks for a
+  sign-in. No email address or name is collected. Nothing is sent to a server unless the
+  build has `LAUNCHPAD_API_URL`, the person signed in, turned sync on, and pressed "Sync
+  now". Sync never silently overwrites either copy. The "Something else" text is never
+  sent. Anything new held on the server needs a row in `docs/privacy/retention.md`.
+- **Never log on the server** anything but method, route template, status and duration.
 - **No compliance claims** (FERPA, GDPR, CCPA, COPPA, …) anywhere — interface, README, or
   marketing — until legal and technical review is complete.
 - Known leak path: Flutter's CanvasKit renderer can fetch fallback fonts from
@@ -143,6 +153,13 @@ scale. Do not claim conformance anywhere; the audit has not happened.
 - **`go_router` reuses a page's `State` across values of a path parameter** (one page per
   route pattern). Key the page widget by the parameter if `initState` must run per value.
   See the `/onboarding/:step` route.
+- **Widget tests cannot drive real isolates or sockets**, so the account screens are
+  tested against `FakeAccountRepository` (`test/helpers.dart`). The real client and server
+  are tested together in `packages/launchpad_data/test/account_contract_test.dart`.
+- **`find.widgetWithText(Type, …)` matches the exact type**, not subclasses. Use
+  `find.bySubtype<ButtonStyleButton>()` with `find.ancestor` to match any button.
+- **`dart format` in this workspace reflows to the pre-3.7 style**; when patching a file
+  by exact text, read the formatted text first.
 - **`flutter analyze` fails on infos**, including `require_trailing_commas` in tests. Run
   `./tool/dev.sh ci` rather than relying on `flutter test` alone.
 

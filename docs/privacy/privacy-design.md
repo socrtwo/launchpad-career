@@ -6,9 +6,14 @@ Data minimisation is a design constraint, not a later feature. The product colle
 nothing by default, stores nothing durably unless the person opts in, and transmits
 nothing they enter. Everything below describes how that is kept true as features arrive.
 
-## Current state (Phase 4)
+## Current state (Phase 5)
 
-- No account, no email, no device identifier.
+- No email, no device identifier. Accounts are optional and exist only in a build made
+  with an account service address; the default build has none and makes no requests.
+- An account is a handle and a passphrase. Signing in sends nothing but those. Sync is a
+  separate, explicit opt-in recorded on the service, and a copy is sent only when "Sync
+  now" is pressed. Turning sync off deletes the copy. The app shows what the service
+  holds and deletes the account on request. See [`retention.md`](retention.md).
 - `Session` holds the chosen goal, an optional `Profile` (preferred name, education so
   far, planned education, interests, priorities), the onboarding step reached, and the
   free text typed into "Something else". All of it is optional and all of it is something
@@ -66,8 +71,10 @@ nothing they enter. Everything below describes how that is kept true as features
 | Local data export | `/your-data` | built (on screen and to the clipboard) |
 | Local data deletion | `/your-data` | built |
 | Retention schedule | `docs/privacy/retention.md` | written for local data |
-| Account deletion | no accounts yet | Phase 5 |
-| Sub-processor list | no processors yet | Phase 5 |
+| Consent for sync | `/account` | built |
+| Account data export | `/account` | built |
+| Account deletion | `/account` | built |
+| Sub-processor list | nothing is deployed, so there are none | to be written by whoever deploys the service |
 
 ## No compliance claims
 
