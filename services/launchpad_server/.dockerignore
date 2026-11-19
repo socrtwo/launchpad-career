@@ -1,0 +1,17 @@
+# Everything the image build does not need. The build copies only
+# pubspec.yaml, pubspec.lock, bin/ and lib/.
+.dart_tool/
+build/
+test/
+*.md
+Dockerfile
+.dockerignore
+analysis_options.yaml
+
+# Local data and secrets must never reach an image layer.
+*.json
+*.json.lock
+*.json.tmp
+data/
+.env
+.env.*

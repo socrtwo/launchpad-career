@@ -2,7 +2,8 @@
 
 ## Shape
 
-Five packages, path-linked, dependencies pointing one way:
+Five app packages, path-linked, dependencies pointing one way, plus one server package
+that stands alone:
 
 ```
         launchpad_app
@@ -28,6 +29,11 @@ launchpad_core|   launchpad_domain
   `OptionTile`, `NoticeCard`, `PageShell`, `ContentColumn`, `StatusLine`. Knows about
   domain entities, not about routing or state.
 - **`launchpad_app`** — feature folders, routing, localisation, providers, tests.
+
+- **`services/launchpad_server`** — the optional account and sync server: pure Dart
+  (`shelf`), no Flutter, no dependency on the packages above. `launchpad_data` depends on
+  it for tests only, so that the app's client is exercised against the real handler. See
+  "Accounts and the server" below.
 
 ### Why the domain package has no Flutter dependency
 
@@ -58,6 +64,7 @@ lib/src/
     ├── tools/          job-search plan, résumé, LinkedIn, interview, skills, progress
     ├── something_else/
     ├── your_data/
+    ├── account/        optional sign-in, sync, account export and deletion
     └── info/
 ```
 
@@ -115,6 +122,7 @@ list internally for exactly this reason.
 | `/tools/skills[?id=<slug>]` | Skill self-rating for an occupation |
 | `/progress` | Everything done so far, in words |
 | `/your-data` | Storage opt-in, export, deletion |
+| `/account` | Optional account: sign in, sync, export, delete. Says so when no service is configured |
 | `/about` | Product scope and disclaimers |
 | `/privacy` | What this build does with data; not yet a reviewed notice |
 | `/accessibility` | Placeholder for the accessibility statement |
@@ -136,6 +144,30 @@ that the keys are strings, which is why they are built in one place and tested.
 
 Which tools suit which goal is a single table, `toolIdsFor` in
 `features/goal/goal_tools.dart`.
+
+## Accounts and the server
+
+Accounts are optional at every level. The app reads the service address from
+`--dart-define=LAUNCHPAD_API_URL=…`; without it `accountRepositoryProvider` is null, the
+catalogues are the bundled ones, and no request is ever made. There is no route guard and
+no feature checks for a sign-in.
+
+- **Interface in the domain** (`AccountRepository`), **client in the data package**
+  (`HttpAccountRepository`, on `package:http`), **server beside both**
+  (`services/launchpad_server`, interface in its `API.md`).
+- **What is synced is what would be stored**: `SessionCodec.encode` without the
+  "Something else" text. The server treats it as an opaque document.
+- **Sync is optimistic and explicit.** Each upload names the revision it is based on; a
+  mismatch comes back as `SyncConflict` and the page asks which copy to keep.
+- **The contract is tested for real.** `account_contract_test.dart` runs the client
+  against `buildHandler` in process, bridging `package:http`'s `MockClient` to the shelf
+  handler. A change on either side that breaks the other fails there. Widget tests use an
+  in-memory fake with the same rules, because the real passphrase hash runs on an isolate
+  that the widget-test clock does not drive.
+- **Catalogue publishing**: `tool/catalog.dart export|validate|publish|rollback`. A
+  published catalogue is used only if `CatalogCodec` accepts every entry; otherwise the
+  app keeps the one it was built with. Publishing an entry with `"kind": "editorial"` is
+  how reviewed content loses its draft label.
 
 ## Recommendations
 

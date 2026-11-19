@@ -14,13 +14,20 @@ guaranteed-employment claims.
 
 ## Project status
 
-**Phases 1 to 4 are built and tested**: the home screen, onboarding questions, opt-in local
+**Phases 1 to 5 are built and tested**: the home screen, onboarding questions, opt-in local
 storage with export and deletion, career exploration (browse, compare, save, rule-based
-suggestions with visible reasons, action plans), and the employment tools (weekly
-job-search plan, résumé and LinkedIn guides, interview practice, skills plan, progress).
-Two things are deliberately unfinished and the interface says so: occupation descriptions
-and tool guidance are AI-assisted drafts awaiting review by a careers adviser, and no pay
-figures are loaded yet, so none are shown. There is no backend and there are no accounts.
+suggestions with visible reasons, action plans), the employment tools (weekly job-search
+plan, résumé and LinkedIn guides, interview practice, skills plan, progress), and an
+optional account with explicit, consented sync, backed by a small server in
+`services/launchpad_server`.
+
+What "built" does not mean, and the interface says so wherever it matters:
+
+- Occupation descriptions and tool guidance are AI-assisted drafts awaiting review by a
+  careers adviser.
+- No pay figures are loaded yet, so none are shown.
+- The server is not deployed anywhere and has not been independently security-reviewed.
+  The default build has no accounts and makes no network requests.
 
 The record of what is done is [`docs/product/roadmap.md`](docs/product/roadmap.md).
 
@@ -60,7 +67,7 @@ ChromeOS is not a separate Flutter target; it is covered by the Android and web 
 
 ## Architecture summary
 
-A five-package workspace with path dependencies:
+Five app packages with path dependencies, and one standalone server package:
 
 ```
 launchpad-career/
@@ -69,10 +76,12 @@ launchpad-career/
 ├── packages/
 │   ├── launchpad_core/         Design tokens, themes, breakpoints, a11y helpers
 │   ├── launchpad_domain/       Pure Dart: entities + repository interfaces
-│   ├── launchpad_data/         Repository implementations, opt-in local persistence
+│   ├── launchpad_data/         Catalogues, opt-in local persistence, account client
 │   └── launchpad_ui/           Shared widgets (goal card, grid, tiles)
 ├── docs/
 ├── .github/
+├── services/
+│   └── launchpad_server/       Optional account and sync server (pure Dart, shelf)
 └── tool/
 ```
 
@@ -189,7 +198,7 @@ in bulk with `tool/create_issues.sh` (requires the `gh` CLI).
 
 ## Known limitations
 
-- Phases 1 to 4 are implemented. Every goal leads to working tools.
+- Phases 1 to 5 are implemented. Every goal leads to working tools.
 - The occupation catalogue is small (under thirty occupations). Its text, and the guidance
   in every tool, is an AI-assisted draft, labelled as such, not yet reviewed by a careers
   adviser.
@@ -197,7 +206,11 @@ in bulk with `tool/create_issues.sh` (requires the `gh` CLI).
   (`docs/product/labour-market-data.md`); until it has been run the interface shows no
   numbers.
 - Suggestions are produced by fixed rules from the person's answers, not by a model.
-- There is no backend. Answers survive a restart only if the person chooses "Save on this
+- Accounts exist only in a build made with `--dart-define=LAUNCHPAD_API_URL=https://…`
+  pointing at a running `services/launchpad_server`. That server is not deployed by this
+  project, has had no independent security review, and its single-file store suits small
+  pilots only. There is no passphrase reset, by design: no contact details are collected.
+- Without an account, answers survive a restart only if the person chooses "Save on this
   device"; they can be exported or deleted under Your data.
 - Web, and only web, has been build-verified here. Android, iOS, Windows, macOS and Linux
   builds are wired into CI but have not been run on this machine.

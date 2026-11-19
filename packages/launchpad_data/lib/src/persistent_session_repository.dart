@@ -40,8 +40,18 @@ class PersistentSessionRepository
   static const String consentKey = 'launchpad.consent.v1';
   static const String sessionKey = 'launchpad.session.v1';
 
-  /// Every key this class may write. Storage adapters allow-list exactly these.
-  static const Set<String> ownedKeys = <String>{consentKey, sessionKey};
+  /// Where the account client keeps a sign-in, when the person allows
+  /// storage. Listed here so that turning storage off, or deleting
+  /// everything, removes it with the rest.
+  static const String accountKey = 'launchpad.account.v1';
+
+  /// Every key the data layer may write. Storage adapters allow-list exactly
+  /// these.
+  static const Set<String> ownedKeys = <String>{
+    consentKey,
+    sessionKey,
+    accountKey,
+  };
 
   final KeyValueStore _store;
   final DateTime Function() _clock;
@@ -134,7 +144,7 @@ class PersistentSessionRepository
         consent['version'] != consentVersion) {
       // No opt-in on record, or an opt-in to different wording: start clean
       // and remove anything a previous version left behind.
-      if (_store.read(consentKey) != null || _store.read(sessionKey) != null) {
+      if (ownedKeys.any((key) => _store.read(key) != null)) {
         unawaited(_erase());
       }
       return;

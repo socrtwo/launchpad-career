@@ -151,6 +151,15 @@ class _YourDataPageState extends ConsumerState<YourDataPage> {
             ),
           ),
           StatusLine(message: _status),
+          _Section(
+            heading: strings.accountTitle,
+            body: '${strings.accountDescription} '
+                '${strings.yourDataAccountNote}',
+            action: OutlinedButton(
+              onPressed: () => context.go(Routes.account),
+              child: Text(strings.accountTitle),
+            ),
+          ),
           const SizedBox(height: Spacing.md),
           OutlinedButton.icon(
             onPressed: () => context.go(Routes.home),

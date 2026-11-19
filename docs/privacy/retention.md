@@ -42,8 +42,42 @@ that, everything lives in memory and ends with the process.
 
 ## On a server
 
-Nothing. This build has no backend and transmits nothing the person enters. When account
-sync ships (Phase 5) its retention rules are added here before it is switched on.
+Nothing, unless all of the following are true: the app was built with an account service
+address; the person created an account; they turned sync on; and they pressed "Sync now".
+The service is `services/launchpad_server`, which is not deployed anywhere by this
+project.
+
+| Data | Kept where | Kept until | Enforced by |
+| --- | --- | --- | --- |
+| Handle; salted, slow hash of the passphrase; account creation time | Account service | The account is deleted | `services/launchpad_server/test/accounts_test.dart` |
+| Sign-ins: a hash of each token and its expiry | Account service | 30 days, sign-out, a passphrase change (other sign-ins), or account deletion | Same |
+| Sync consent: granted or not, when, wording version | Account service | Replaced by the next decision; removed with the account | `services/launchpad_server/test/sync_test.dart` |
+| Profile document: exactly what the device would store (goal, answers, workspace including notes). Never the "Something else" text | Account service, only while sync consent is granted | Sync is turned off (deleted immediately), or the account is deleted | `packages/launchpad_data/test/account_contract_test.dart` (`turning sync off deletes the copy`, `the "Something else" text never leaves the device`) |
+| The sign-in token on the device | Memory; device store only while "Save on this device" is on | Sign-out, expiry, saving turned off, or everything on the device deleted | `account_contract_test.dart` (`the sign-in on the device`) |
+| The passphrase | Nowhere. It is sent to the service over TLS and discarded | — | `the passphrase is never written to the device` |
+| Client network address | Service memory only, for rate limiting; never logged or stored | The rate-limit window, or a restart | `services/launchpad_server/test/http_test.dart` |
+
+### Rules
+
+- **No email address, no name.** An account cannot be tied to a person by anything it
+  holds, which is also why a forgotten passphrase cannot be reset.
+- **Sync is explicit.** There is no background sync. A copy is sent when "Sync now" is
+  pressed and at no other time.
+- **No silent overwrite.** If the service holds a copy this device has not seen, the
+  person chooses which to keep.
+- **Export and deletion are in the app**, next to the thing they apply to. Deleting an
+  account needs the passphrase again.
+- **Deleting everything on the device does not delete the account**, and the interface
+  says so in both places.
+- **The request log holds a method, a route template, a status and a duration.** No
+  address, handle, token or content. A test sends all of them and checks the log.
+- **Published catalogues are fetched with a plain public GET** carrying no credentials and
+  nothing about the person. It does disclose the device's network address to the service
+  operator, as any request does.
+
+Backups of the service's data file are the operator's responsibility and are outside what
+this code can erase. An operator's retention schedule has to cover them before any real
+deployment.
 
 ## What is outside the app's control
 

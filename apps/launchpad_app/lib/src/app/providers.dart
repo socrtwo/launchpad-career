@@ -1,14 +1,53 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import 'package:launchpad_data/launchpad_data.dart';
 import 'package:launchpad_domain/launchpad_domain.dart';
 
-/// Repository wiring. Tests and future backends override these, nothing else.
+/// The address of the optional account service, from the build:
+/// `--dart-define=LAUNCHPAD_API_URL=https://…`.
+///
+/// Null in a build made without it, and null for anything that is not HTTPS
+/// (plain HTTP is accepted only for this machine). With no address there are
+/// no accounts, nothing is fetched, and the app makes no network requests of
+/// its own.
+final Provider<Uri?> apiBaseUrlProvider = Provider<Uri?>((ref) {
+  const raw = String.fromEnvironment('LAUNCHPAD_API_URL');
+  if (raw.isEmpty) return null;
+  final url = Uri.tryParse(raw);
+  return url != null && HttpAccountRepository.isAcceptableBaseUrl(url)
+      ? url
+      : null;
+});
+
+final Provider<http.Client> httpClientProvider = Provider<http.Client>((ref) {
+  final client = http.Client();
+  ref.onDispose(client.close);
+  return client;
+});
+
+final Provider<CatalogClient?> _catalogClientProvider =
+    Provider<CatalogClient?>((ref) {
+  final url = ref.watch(apiBaseUrlProvider);
+  return url == null
+      ? null
+      : CatalogClient(baseUrl: url, client: ref.watch(httpClientProvider));
+});
+
+/// Repository wiring. Tests and backends override these, nothing else.
+///
+/// With an account service configured, a catalogue published there is used
+/// if it passes the same checks as the bundled one; otherwise, and on any
+/// failure, the bundled catalogue is used.
 final Provider<GoalCatalogRepository> goalCatalogRepositoryProvider =
-    Provider<GoalCatalogRepository>(
-  (ref) => const InMemoryGoalCatalogRepository(),
-);
+    Provider<GoalCatalogRepository>((ref) {
+  const bundled = InMemoryGoalCatalogRepository();
+  final client = ref.watch(_catalogClientProvider);
+  return client == null
+      ? bundled
+      : RemoteFirstGoalCatalogRepository(client: client, fallback: bundled);
+});
 
 /// Where an opted-in session is kept.
 ///
@@ -44,9 +83,30 @@ final FutureProvider<List<Goal>> goalsProvider = FutureProvider<List<Goal>>(
 );
 
 final Provider<OccupationCatalogRepository>
-    occupationCatalogRepositoryProvider = Provider<OccupationCatalogRepository>(
-  (ref) => InMemoryOccupationCatalogRepository(),
-);
+    occupationCatalogRepositoryProvider =
+    Provider<OccupationCatalogRepository>((ref) {
+  final bundled = InMemoryOccupationCatalogRepository();
+  final client = ref.watch(_catalogClientProvider);
+  return client == null
+      ? bundled
+      : RemoteFirstOccupationCatalogRepository(
+          client: client,
+          fallback: bundled,
+        );
+});
+
+/// The optional account, or null when this build has no account service.
+final Provider<AccountRepository?> accountRepositoryProvider =
+    Provider<AccountRepository?>((ref) {
+  final url = ref.watch(apiBaseUrlProvider);
+  if (url == null) return null;
+  return HttpAccountRepository(
+    baseUrl: url,
+    client: ref.watch(httpClientProvider),
+    store: ref.watch(keyValueStoreProvider),
+    mayPersist: () => ref.read(localDataRepositoryProvider).storageEnabled,
+  );
+});
 
 final Provider<LaborMarketRepository> laborMarketRepositoryProvider =
     Provider<LaborMarketRepository>(
@@ -299,6 +359,11 @@ class SessionController extends Notifier<Session> {
         state.copyWith(workspace: state.workspace.withoutPlan(occupationId)),
       );
 
+  /// Replaces this device's copy with the one from the account. The
+  /// "Something else" text is never synced, so the local one is kept.
+  void replaceWith(Session remote) =>
+      _commit(remote.copyWith(freeTextPrompt: state.freeTextPrompt));
+
   void _commit(Session next) {
     if (next == state) return;
     state = next;
@@ -329,6 +394,8 @@ class LocalDataController extends Notifier<bool> {
     final repository = ref.read(localDataRepositoryProvider);
     try {
       await repository.enableStorage();
+      // A sign-in made before storage was on is kept from now on too.
+      await ref.read(accountRepositoryProvider)?.persistIfAllowed();
       ref.read(storageProblemProvider.notifier).clear();
     } on Object {
       ref.read(storageProblemProvider.notifier).report();
@@ -357,3 +424,70 @@ class LocalDataController extends Notifier<bool> {
 
 final NotifierProvider<LocalDataController, bool> storageEnabledProvider =
     NotifierProvider<LocalDataController, bool>(LocalDataController.new);
+
+/// The signed-in account, or null. Signing in is never required for anything.
+class AccountController extends Notifier<AccountStatus?> {
+  @override
+  AccountStatus? build() => ref.watch(accountRepositoryProvider)?.current;
+
+  AccountRepository get _repository {
+    final repository = ref.read(accountRepositoryProvider);
+    if (repository == null) {
+      throw const AccountException(AccountFailure.notConfigured);
+    }
+    return repository;
+  }
+
+  /// Runs [action] and then reflects whatever sign-in the repository now
+  /// holds, including after a failure that ended it.
+  Future<T> _run<T>(
+    Future<T> Function(AccountRepository repository) action,
+  ) async {
+    final repository = _repository;
+    try {
+      return await action(repository);
+    } finally {
+      state = repository.current;
+    }
+  }
+
+  Future<void> createAccount(String handle, String passphrase) => _run(
+        (repository) =>
+            repository.createAccount(handle: handle, passphrase: passphrase),
+      );
+
+  Future<void> signIn(String handle, String passphrase) => _run(
+        (repository) =>
+            repository.signIn(handle: handle, passphrase: passphrase),
+      );
+
+  Future<void> signOut() => _run((repository) => repository.signOut());
+
+  Future<bool> syncConsent() => _run((repository) => repository.syncConsent());
+
+  Future<void> setSyncConsent({required bool granted}) =>
+      _run((repository) => repository.setSyncConsent(granted: granted));
+
+  Future<SyncResult> upload({int? baseRevision}) => _run(
+        (repository) => repository.upload(
+          ref.read(sessionProvider),
+          baseRevision: baseRevision,
+        ),
+      );
+
+  /// Takes the account's copy onto this device.
+  Future<void> useRemote(RemoteProfile remote) => _run((repository) async {
+        ref.read(sessionProvider.notifier).replaceWith(remote.session);
+        // Records the revision this device has now seen.
+        await repository.download();
+      });
+
+  Future<String> exportData() => _run((repository) => repository.exportData());
+
+  Future<void> deleteAccount(String passphrase) => _run(
+        (repository) => repository.deleteAccount(passphrase: passphrase),
+      );
+}
+
+final NotifierProvider<AccountController, AccountStatus?> accountProvider =
+    NotifierProvider<AccountController, AccountStatus?>(AccountController.new);
