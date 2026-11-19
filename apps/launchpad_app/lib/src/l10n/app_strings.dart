@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'data_strings.dart';
+import 'explore_strings.dart';
 import 'onboarding_strings.dart';
 
 /// Hand-written localisation table.
@@ -12,7 +13,7 @@ import 'onboarding_strings.dart';
 /// intentionally *not* here - they come from the catalogue repository, because
 /// they are editorial content destined for a CMS.
 @immutable
-class AppStrings with OnboardingStrings, DataStrings {
+class AppStrings with OnboardingStrings, DataStrings, ExploreStrings {
   const AppStrings();
 
   static const AppStrings en = AppStrings();
@@ -57,8 +58,10 @@ class AppStrings with OnboardingStrings, DataStrings {
   String get whatHappensNext => 'What happens next';
 
   String get goalToolsNotice =>
-      'This build is an early preview. The questions and your saved answers '
-      'work today. The step described below is planned, not yet built.';
+      'This build is an early preview. The tools for this goal are planned, '
+      'not yet built. What they will do is described below.';
+
+  String get goalToolsHeading => 'Start here';
 
   String get goalLinkUnknown => 'That goal link is not one we recognise.';
 

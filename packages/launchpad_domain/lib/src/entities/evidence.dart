@@ -45,4 +45,15 @@ class Evidence {
   final ConfidenceBand confidence;
 
   bool get isGenerated => kind == EvidenceKind.generatedGuidance;
+
+  /// Labour-market data goes stale. Anything older than this is shown with a
+  /// warning rather than as if it were current.
+  static const Duration stalenessThreshold = Duration(days: 548);
+
+  /// Whether [asOf] is far enough behind [now] to need a staleness warning.
+  /// Undated evidence is never called stale; it is simply undated.
+  bool isStaleAt(DateTime now) {
+    final date = asOf;
+    return date != null && now.difference(date) > stalenessThreshold;
+  }
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:launchpad_app/src/app/app.dart';
 import 'package:launchpad_app/src/app/providers.dart';
+import 'package:launchpad_app/src/routing/app_router.dart';
 import 'package:launchpad_data/launchpad_data.dart';
 import 'package:launchpad_domain/launchpad_domain.dart';
 import 'package:launchpad_ui/launchpad_ui.dart';
@@ -22,6 +23,8 @@ Future<void> pumpApp(
   GoalCatalogRepository? goalCatalog,
   KeyValueStore? store,
   bool storageAvailable = true,
+  LaborMarketSnapshot? laborMarket,
+  DateTime? now,
   Size surfaceSize = const Size(1280, 900),
   Brightness platformBrightness = Brightness.light,
   double textScaleFactor = 1.0,
@@ -58,6 +61,11 @@ Future<void> pumpApp(
         if (goalCatalog != null)
           goalCatalogRepositoryProvider.overrideWithValue(goalCatalog),
         if (store != null) keyValueStoreProvider.overrideWithValue(store),
+        if (laborMarket != null)
+          laborMarketRepositoryProvider.overrideWithValue(
+            FixedLaborMarketRepository(laborMarket),
+          ),
+        if (now != null) clockProvider.overrideWithValue(() => now),
         if (!storageAvailable)
           durableStorageAvailableProvider.overrideWithValue(false),
       ],
@@ -113,4 +121,61 @@ class FailingKeyValueStore implements KeyValueStore {
 
   @override
   Future<void> delete(String key) async {}
+}
+
+/// The provider container of the running app.
+ProviderContainer containerOf(WidgetTester tester) =>
+    ProviderScope.containerOf(tester.element(find.byType(MaterialApp)));
+
+/// Navigates by URL, the way a deep link or a refresh would.
+Future<void> goTo(WidgetTester tester, String location) async {
+  containerOf(tester).read(routerProvider).go(location);
+  await tester.pumpAndSettle();
+}
+
+/// Sets the answers a person would have given in onboarding.
+Future<void> setProfile(WidgetTester tester, Profile profile) async {
+  containerOf(tester).read(sessionProvider.notifier).updateProfile(profile);
+  await tester.pumpAndSettle();
+}
+
+/// Runs the four guideline matchers this project holds every screen to.
+Future<void> expectMeetsGuidelines(WidgetTester tester) async {
+  await expectLater(tester, meetsGuideline(textContrastGuideline));
+  await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+  await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
+  await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+}
+
+/// Labour-market figures for tests. The numbers are invented and attributed
+/// to an invented publisher, so they can never be mistaken for real ones.
+LaborMarketSnapshot testSnapshot({DateTime? asOf}) {
+  final date = asOf ?? DateTime.utc(2024, 5);
+  final evidence = Evidence(
+    kind: EvidenceKind.laborMarketData,
+    source: 'Test Statistics Office',
+    asOf: date,
+  );
+  LaborStats stats(String soc, int median, int low, int high, int jobs) =>
+      LaborStats(
+        socCode: soc,
+        medianAnnualWage: median,
+        lowAnnualWage: low,
+        highAnnualWage: high,
+        employment: jobs,
+        evidence: evidence,
+      );
+  return LaborMarketSnapshot(
+    source: 'Test Statistics Office',
+    sourceUrl: 'https://example.org/stats',
+    referencePeriod: 'May ${date.year}',
+    asOf: date,
+    retrievedOn: date,
+    allOccupationsMedianAnnualWage: 50000,
+    statsBySoc: <String, LaborStats>{
+      '47-2111': stats('47-2111', 61000, 39000, 104000, 712345),
+      '47-2152': stats('47-2152', 60000, 40000, 70000, 456789),
+      '15-1252': stats('15-1252', 130000, 79000, 208000, 1654321),
+    },
+  );
 }

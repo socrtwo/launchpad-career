@@ -14,10 +14,15 @@ guaranteed-employment claims.
 
 ## Project status
 
-**Phases 1 and 2 — implemented and verified.** The responsive home screen, theming,
-routing, accessibility work, onboarding questions, and opt-in local storage with export
-and deletion are done and tested. Each goal's own tools are still a described placeholder,
-clearly labelled as such in the interface.
+**Phases 1 to 3 are built and tested**: the home screen, onboarding questions, opt-in local
+storage with export and deletion, and career exploration (browse, compare, save,
+rule-based suggestions with visible reasons, action plans). Two things in Phase 3 are
+deliberately unfinished and the interface says so: occupation descriptions are AI-assisted
+drafts awaiting review by a careers adviser, and no pay figures are loaded yet, so none
+are shown. The tools for the job-search, resume, interview and skills goals are still
+described placeholders.
+
+The record of what is done is [`docs/product/roadmap.md`](docs/product/roadmap.md).
 
 Verified against Flutter 3.44.8 / Dart 3.12.2 with `./tool/dev.sh ci` (format check,
 analyze, and every package's tests). The command prints the current test counts; they are
@@ -184,10 +189,16 @@ in bulk with `tool/create_issues.sh` (requires the `gh` CLI).
 
 ## Known limitations
 
-- Phases 1 and 2 are implemented. After the onboarding questions, every goal still leads
-  to a page that describes its planned tools rather than providing them.
-- There is no backend and no recommendation engine. Answers survive a restart only if the
-  person chooses "Save on this device"; they can be exported or deleted under Your data.
+- Phases 1 to 3 are implemented. Two goals (direction, and major or graduate path) lead to
+  working tools; the other four still describe planned tools rather than providing them.
+- The occupation catalogue is small (under thirty occupations) and its text is an
+  AI-assisted draft, labelled as such, not yet reviewed by a careers adviser.
+- No pay or employment figures are bundled yet. The importer exists
+  (`docs/product/labour-market-data.md`); until it has been run the interface shows no
+  numbers.
+- Suggestions are produced by fixed rules from the person's answers, not by a model.
+- There is no backend. Answers survive a restart only if the person chooses "Save on this
+  device"; they can be exported or deleted under Your data.
 - Web, and only web, has been build-verified here. Android, iOS, Windows, macOS and Linux
   builds are wired into CI but have not been run on this machine.
 - Localisation is structured but single-locale (`en`). Strings live in

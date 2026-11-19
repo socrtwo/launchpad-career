@@ -2,6 +2,7 @@
 library;
 
 export 'src/content_column.dart';
+export 'src/evidence_note.dart';
 export 'src/goal_card.dart';
 export 'src/goal_grid.dart';
 export 'src/goal_icons.dart';

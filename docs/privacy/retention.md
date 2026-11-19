@@ -14,6 +14,9 @@ that, everything lives in memory and ends with the process.
 | Goal chosen | Memory; device store after opt-in | Deleted by the person, saving turned off, or 12 months without a save | `persistent_session_repository_test.dart` |
 | Preferred name, education, plans, interests, priorities | Memory; device store after opt-in | Same | Same |
 | Onboarding step reached | Memory; device store after opt-in | Same | Same |
+| Saved occupations, plans, the route each plan follows, steps marked done | Memory; device store after opt-in | Same | `occupation_catalog_test.dart` (`SessionCodec with a workspace`), `explore_test.dart` |
+| Plan steps the person wrote themselves (free text, up to 200 characters each, 12 per plan) | Memory; device store after opt-in | Same; also removed when the step or its plan is removed | `explore_test.dart` (`steps a person writes are stored only after opting in`) |
+| Search text typed on the browse page | Widget state only; never the session, never the store | Leaving the page | Not part of `Session` |
 | The opt-in itself (granted, when, wording version) | Device store | Saving turned off or everything deleted | Same |
 | "Something else" free text | Memory only, never the device store | The app is closed, or everything is deleted | `the free text never reaches the store`, `your_data_test.dart` |
 

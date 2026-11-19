@@ -43,6 +43,42 @@ final FutureProvider<List<Goal>> goalsProvider = FutureProvider<List<Goal>>(
   (ref) => ref.watch(goalCatalogRepositoryProvider).primaryGoals(),
 );
 
+final Provider<OccupationCatalogRepository>
+    occupationCatalogRepositoryProvider = Provider<OccupationCatalogRepository>(
+  (ref) => InMemoryOccupationCatalogRepository(),
+);
+
+final Provider<LaborMarketRepository> laborMarketRepositoryProvider =
+    Provider<LaborMarketRepository>(
+  (ref) => const BundledLaborMarketRepository(),
+);
+
+/// Today, for deciding whether a figure is stale. A provider so a test can
+/// stand in a fixed date.
+final Provider<DateTime Function()> clockProvider =
+    Provider<DateTime Function()>((ref) => DateTime.now);
+
+final FutureProvider<List<Occupation>> occupationsProvider =
+    FutureProvider<List<Occupation>>(
+  (ref) => ref.watch(occupationCatalogRepositoryProvider).all(),
+);
+
+/// The template steps of a plan, keyed by occupation id and route kind.
+final planStepsProvider =
+    FutureProvider.family<List<PlanStep>, (String, RouteKind)>(
+        (ref, key) async {
+  final repository = ref.watch(occupationCatalogRepositoryProvider);
+  final occupation = await repository.byId(key.$1);
+  if (occupation == null) return const <PlanStep>[];
+  return repository.planSteps(occupation, key.$2);
+});
+
+/// The bundled labour-market figures, or null when none are loaded.
+final FutureProvider<LaborMarketSnapshot?> laborMarketProvider =
+    FutureProvider<LaborMarketSnapshot?>(
+  (ref) => ref.watch(laborMarketRepositoryProvider).snapshot(),
+);
+
 /// Which primary goal is currently selected on the home screen, or null.
 class SelectedGoalController extends Notifier<GoalId?> {
   @override
@@ -131,6 +167,75 @@ class SessionController extends Notifier<Session> {
     if (state.onboardingStatus == OnboardingStatus.completed) return;
     _commit(state.copyWith(onboardingStatus: OnboardingStatus.skipped));
   }
+
+  void toggleSaved(String occupationId) => _commit(
+        state.copyWith(workspace: state.workspace.toggleSaved(occupationId)),
+      );
+
+  void toggleDone(String key) =>
+      _commit(state.copyWith(workspace: state.workspace.toggleDone(key)));
+
+  /// Starts a plan, or changes the route an existing plan follows.
+  void setPlanRoute(String occupationId, RouteKind route) {
+    final plan = state.workspace.plans[occupationId] ??
+        ActionPlan(occupationId: occupationId);
+    _commit(
+      state.copyWith(
+        workspace: state.workspace.withPlan(plan.withRoute(route)),
+      ),
+    );
+  }
+
+  /// Adds a step the person wrote. Returns false if the plan is full or the
+  /// text is blank, so the page can say why nothing happened.
+  bool addCustomStep(String occupationId, String text) {
+    final trimmed = text.trim();
+    final plan = state.workspace.plans[occupationId];
+    if (trimmed.isEmpty ||
+        plan == null ||
+        plan.customSteps.length >= ActionPlan.maxCustomSteps) {
+      return false;
+    }
+    var number = plan.customSteps.length + 1;
+    while (plan.customSteps.any((step) => step.id == 'c$number')) {
+      number++;
+    }
+    final step = CustomStep(
+      id: 'c$number',
+      text: trimmed.length > CustomStep.maxLength
+          ? trimmed.substring(0, CustomStep.maxLength)
+          : trimmed,
+    );
+    _commit(
+      state.copyWith(
+        workspace: state.workspace.withPlan(
+          plan.withCustomSteps(<CustomStep>[...plan.customSteps, step]),
+        ),
+      ),
+    );
+    return true;
+  }
+
+  void removeCustomStep(String occupationId, String stepId) {
+    final plan = state.workspace.plans[occupationId];
+    if (plan == null) return;
+    final key = Workspace.customStepKey(occupationId, stepId);
+    final workspace = state.workspace.withPlan(
+      plan.withCustomSteps(
+        plan.customSteps.where((step) => step.id != stepId).toList(),
+      ),
+    );
+    _commit(
+      state.copyWith(
+        workspace:
+            workspace.isDone(key) ? workspace.toggleDone(key) : workspace,
+      ),
+    );
+  }
+
+  void removePlan(String occupationId) => _commit(
+        state.copyWith(workspace: state.workspace.withoutPlan(occupationId)),
+      );
 
   void _commit(Session next) {
     if (next == state) return;
