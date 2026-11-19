@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import 'goal.dart';
 import 'onboarding.dart';
 import 'profile.dart';
+import 'workspace.dart';
 
 const Object _unset = Object();
 
@@ -19,6 +20,7 @@ class Session {
     this.profile = const Profile(),
     this.onboardingStatus = OnboardingStatus.notStarted,
     this.onboardingStep,
+    this.workspace = const Workspace(),
   });
 
   /// The primary goal carried forward from the home screen.
@@ -36,6 +38,9 @@ class Session {
   /// The last onboarding question shown, so the sequence can be resumed.
   final OnboardingStep? onboardingStep;
 
+  /// Saved occupations, plans, and everything marked done.
+  final Workspace workspace;
+
   String? get preferredName => profile.preferredName;
 
   bool get isAnonymous => profile.preferredName == null;
@@ -44,6 +49,7 @@ class Session {
   bool get hasProgress =>
       selectedGoal != null ||
       !profile.isEmpty ||
+      !workspace.isEmpty ||
       onboardingStatus != OnboardingStatus.notStarted;
 
   /// Whether the session holds nothing at all.
@@ -56,6 +62,7 @@ class Session {
     Profile? profile,
     OnboardingStatus? onboardingStatus,
     Object? onboardingStep = _unset,
+    Workspace? workspace,
   }) {
     return Session(
       selectedGoal: identical(selectedGoal, _unset)
@@ -69,6 +76,7 @@ class Session {
       onboardingStep: identical(onboardingStep, _unset)
           ? this.onboardingStep
           : onboardingStep as OnboardingStep?,
+      workspace: workspace ?? this.workspace,
     );
   }
 
@@ -80,7 +88,8 @@ class Session {
           other.freeTextPrompt == freeTextPrompt &&
           other.profile == profile &&
           other.onboardingStatus == onboardingStatus &&
-          other.onboardingStep == onboardingStep);
+          other.onboardingStep == onboardingStep &&
+          other.workspace == workspace);
 
   @override
   int get hashCode => Object.hash(
@@ -89,5 +98,6 @@ class Session {
         profile,
         onboardingStatus,
         onboardingStep,
+        workspace,
       );
 }

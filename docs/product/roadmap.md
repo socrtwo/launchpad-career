@@ -1,7 +1,8 @@
 # Roadmap
 
-Phases 1 and 2 are done. Everything after them is planned, not built. Progress claims in
-the interface must match this document.
+Phases 1 and 2 are done and Phase 3 is done except for importing real figures. Everything
+after that is planned, not built. Progress claims in the interface must match this
+document.
 
 ## Phase 1 — Foundation (complete)
 
@@ -28,14 +29,22 @@ the interface must match this document.
 - [x] Export and deletion of everything held, shipped with storage rather than after it
 - [x] Written retention schedule (`docs/privacy/retention.md`)
 
-## Phase 3 — Career exploration
+## Phase 3 — Career exploration (built; data import outstanding)
 
-- [ ] Occupation search and browse
-- [ ] Side-by-side career comparison
-- [ ] Explainable recommendations with `Evidence` rendering
-- [ ] Saved options
-- [ ] Career action plans
+- [x] Occupation search and browse
+- [x] Side-by-side career comparison
+- [x] Explainable recommendations with `Evidence` rendering
+- [x] Saved options
+- [x] Career action plans
 - [ ] Real labour-market data source, with attribution and as-of dates
+  - [x] Importer for U.S. Bureau of Labor Statistics OEWS figures, with refusal checks
+        (`docs/product/labour-market-data.md`)
+  - [x] Attribution, reference period, spread and staleness rendering
+  - [ ] A snapshot actually imported from the publisher. Until then the interface says
+        pay figures are not loaded and shows no numbers.
+
+Occupation descriptions and plan steps are AI-assisted drafts, labelled as such in the
+interface, and await review by a careers adviser (`docs/product/content-review.md`).
 
 ## Phase 4 — Employment tools
 

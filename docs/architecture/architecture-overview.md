@@ -13,8 +13,9 @@ launchpad_core|   launchpad_domain
               \________/
 ```
 
-- **`launchpad_domain`** — pure Dart. Entities (`Goal`, `Session`, `Profile`, `Evidence`)
-  and repository interfaces. No Flutter, no I/O, no JSON. This is the layer that outlives
+- **`launchpad_domain`** — pure Dart. Entities (`Goal`, `Session`, `Profile`, `Workspace`,
+  `Occupation`, `LaborStats`, `Evidence`), repository interfaces, and the one piece of
+  domain logic, `Recommender`. No Flutter, no I/O, no JSON. This is the layer that outlives
   every UI rewrite, so it is kept boring.
 - **`launchpad_data`** — implementations of those interfaces, still pure Dart. Catalogues
   are in memory. The session is in memory and, after an explicit opt-in, mirrored through
@@ -53,6 +54,7 @@ lib/src/
     ├── home/
     ├── onboarding/
     ├── goal/
+    ├── explore/        browse, occupation, compare, saved, suggestions, plan
     ├── something_else/
     ├── your_data/
     └── info/
@@ -72,6 +74,9 @@ Riverpod. Three kinds of provider are in use, and there is no fourth pattern:
 - `Notifier` for state a user can change (`SelectedGoalController`, `SessionController`,
   `LocalDataController`). The session is read synchronously from its repository and
   written back through the notifier; there is deliberately no `StreamProvider`.
+
+`FutureProvider.family` is used once, for plan steps keyed by occupation and route. It is
+the same pattern with a parameter, not a fourth one.
 
 ### Where plugins live
 
@@ -95,6 +100,12 @@ list internally for exactly this reason.
 | `/onboarding/<step>` | One onboarding question, by slug; `review` shows every answer |
 | `/goal?id=<slug>` | Destination for a selected goal |
 | `/something-else` | Open-text entry point |
+| `/explore` | Search and browse occupations |
+| `/occupation?id=<slug>` | One occupation |
+| `/compare?ids=<slug>,<slug>` | Two or three occupations side by side; the selection is in the URL |
+| `/saved` | Saved occupations and their plans |
+| `/suggestions` | Occupations matched to the person's answers, with reasons |
+| `/plan?id=<slug>` | Action plan towards one occupation |
 | `/your-data` | Storage opt-in, export, deletion |
 | `/about` | Product scope and disclaimers |
 | `/privacy` | What this build does with data; not yet a reviewed notice |
@@ -105,6 +116,24 @@ repoint saved links or stored state; `GoalId.fromSlug` is the only way in.
 
 The goal page reads its goal from the URL rather than from selection state, so a refreshed
 or shared link works.
+
+## Recommendations
+
+`Recommender.recommend` is a pure function in `launchpad_domain`: profile and catalogue in,
+`RecommendationSet` out. It scores by fixed rules, returns structured reasons
+(`InterestReason`, `RouteOpenNowReason`, `PriorityReason`, …) rather than sentences, and
+reports what it could not use (`RecommendationNote`, `unusedPriorities`) instead of
+guessing. The interface words the reasons. Keeping it in the domain package means it has
+no access to anything but the three inputs it is allowed to read, and it is tested without
+Flutter. The specification it is built against is
+`docs/product/career-recommendation-principles.md`.
+
+## Content and figures
+
+Occupation text is bundled in `launchpad_data/lib/src/catalog/`. Pay and employment
+figures are a separate, generated file (`lib/src/labor/oews_snapshot.g.dart`) written by
+`tool/import_oews.dart`; see `docs/product/labour-market-data.md`. Text carries no figures
+and figures carry their own evidence, so the two cannot be confused.
 
 ## Responsive layout
 

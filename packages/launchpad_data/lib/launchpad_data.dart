@@ -6,8 +6,13 @@
 /// implementation beside these, not editing the UI.
 library;
 
+export 'src/bundled_labor_market_repository.dart';
+export 'src/catalog/occupations.dart';
+export 'src/catalog/plan_templates.dart';
 export 'src/in_memory_goal_catalog_repository.dart';
+export 'src/in_memory_occupation_catalog_repository.dart';
 export 'src/in_memory_session_repository.dart';
 export 'src/key_value_store.dart';
+export 'src/labor/oews_importer.dart';
 export 'src/persistent_session_repository.dart';
 export 'src/session_codec.dart';

@@ -9,6 +9,7 @@ import '../../app/app_page.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_strings.dart';
 import '../../routing/app_router.dart';
+import 'goal_tools.dart';
 
 /// Placeholder destination for a selected goal.
 ///
@@ -60,6 +61,7 @@ class GoalPage extends ConsumerWidget {
             child: Text(strings.goalsUnavailable),
           );
         }
+        final tools = toolsFor(goal.id, strings);
         return _GoalScaffold(
           title: goal.title,
           child: Column(
@@ -78,20 +80,41 @@ class GoalPage extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: Spacing.lg),
-              NoticeCard(text: strings.goalToolsNotice),
-              const SizedBox(height: Spacing.lg),
-              Semantics(
-                header: true,
-                child: Text(
-                  strings.whatHappensNext,
-                  style: Theme.of(context).textTheme.headlineSmall,
+              if (tools.isEmpty) ...<Widget>[
+                NoticeCard(text: strings.goalToolsNotice),
+                const SizedBox(height: Spacing.lg),
+                Semantics(
+                  header: true,
+                  child: Text(
+                    strings.whatHappensNext,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
                 ),
-              ),
-              const SizedBox(height: Spacing.xs),
-              Text(
-                goal.nextStep,
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
+                const SizedBox(height: Spacing.xs),
+                Text(
+                  goal.nextStep,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ] else ...<Widget>[
+                Semantics(
+                  header: true,
+                  child: Text(
+                    strings.goalToolsHeading,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ),
+                const SizedBox(height: Spacing.sm),
+                for (final tool in tools)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: Spacing.sm),
+                    child: SecondaryChoiceTile(
+                      title: tool.title,
+                      description: tool.description,
+                      icon: tool.icon,
+                      onPressed: () => context.go(tool.location),
+                    ),
+                  ),
+              ],
               const SizedBox(height: Spacing.xl),
               Wrap(
                 spacing: Spacing.sm,

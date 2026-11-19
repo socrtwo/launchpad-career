@@ -19,6 +19,17 @@ enum EducationLevel {
 
   final String slug;
 
+  /// Position on the ladder of credentials. A certificate and some college
+  /// share a rung: neither is a degree and neither contains the other.
+  int get rank => switch (this) {
+        EducationLevel.highSchool => 0,
+        EducationLevel.certificate || EducationLevel.someCollege => 1,
+        EducationLevel.associate => 2,
+        EducationLevel.bachelors => 3,
+        EducationLevel.masters => 4,
+        EducationLevel.doctoral => 5,
+      };
+
   static EducationLevel? fromSlug(String? slug) {
     if (slug == null) return null;
     for (final level in EducationLevel.values) {

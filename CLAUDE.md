@@ -7,9 +7,9 @@ this file is the summary you follow by default. When in doubt, the docs win — 
 
 A career-planning and employment-guidance tool for undergraduates, graduate students,
 recent graduates, and career changers. It is **not** a mental-health service, diagnostic
-tool, job board, or promise of employment. Phases 1 (foundation) and 2 (onboarding, opt-in
-local storage) are complete; everything else is planned, not built, and the interface must
-say so honestly
+tool, job board, or promise of employment. Phases 1 (foundation), 2 (onboarding, opt-in
+local storage) and 3 (career exploration) are built; `docs/product/roadmap.md` is the
+record of what is and is not done, and the interface must say the same thing honestly
 (`docs/product/roadmap.md`, `docs/product/product-principles.md`).
 
 ## Architecture rules (`docs/architecture/architecture-overview.md`)
@@ -17,7 +17,8 @@ say so honestly
 Five path-linked packages with one-way dependencies:
 
 - `packages/launchpad_domain` — pure Dart entities (`Goal`, `Session`, `Profile`,
-  `Evidence`) and repository interfaces. **No Flutter, no I/O, no JSON.** If a design decision reaches
+  `Workspace`, `Occupation`, `LaborStats`, `Evidence`), repository interfaces, and the
+  rule-based `Recommender`. **No Flutter, no I/O, no JSON.** If a design decision reaches
   into this package, it is in the wrong place (e.g. `Goal` carries a `GoalIcon` enum,
   never `IconData`).
 - `packages/launchpad_data` — repository implementations, pure Dart (no Flutter plugins:
@@ -63,7 +64,20 @@ clinical, bureaucratic, trendy, or academic.
 8. **No emoji in the product interface** (screen readers, rendering, contrast).
 9. Numbers carry their source and as-of date, or they do not appear.
 
-Recommendations (when built) must show their reasoning and provenance (`Evidence.kind`),
+Content rules that are tested, not just reviewed:
+
+- **Label content by what it actually is.** Bundled occupation text and plan steps are
+  AI-assisted drafts, so they carry `EvidenceKind.generatedGuidance` and the interface
+  says so. Do not relabel anything `editorial` until a careers adviser has reviewed it
+  (`docs/product/content-review.md`).
+- **Catalogue text carries no figures.** Pay and employment numbers come only from the
+  generated labour-market snapshot, each with source and reference period
+  (`docs/product/labour-market-data.md`). Never hand-type a statistic, and never invent
+  one for a default or placeholder: no data means the interface says "not loaded".
+- **Test fixtures use an invented publisher** ("Test Statistics Office") so invented
+  numbers can never be mistaken for real ones.
+
+Recommendations must show their reasoning and provenance (`Evidence.kind`),
 express confidence in words not percentages, offer multiple paths including non-degree
 routes, never condition on protected characteristics or their proxies, and refer
 out-of-scope situations to human services — see

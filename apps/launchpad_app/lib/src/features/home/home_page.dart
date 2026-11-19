@@ -270,6 +270,14 @@ class _Legal extends StatelessWidget {
           spacing: Spacing.md,
           children: <Widget>[
             TextButton(
+              onPressed: () => context.go(Routes.explore),
+              child: Text(strings.exploreTitle),
+            ),
+            TextButton(
+              onPressed: () => context.go(Routes.saved),
+              child: Text(strings.savedTitle),
+            ),
+            TextButton(
               onPressed: () => context.go(Routes.about),
               child: Text(strings.footerAbout),
             ),

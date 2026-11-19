@@ -22,6 +22,10 @@ requirements the code is written and tested against.
 | Every onboarding question survives 2× text on a 360dp-wide phone | `onboarding_test.dart` |
 | Answers are reachable by Tab and activated by Space; single-choice answers are announced as a group, choose-any answers as checkboxes | `onboarding_test.dart`, `packages/launchpad_ui/test/option_tile_test.dart` |
 | Progress is given in words ("Step 2 of 6"), not only as a bar | `onboarding_test.dart` |
+| Browse, occupation, compare, saved, suggestions and plan pages meet contrast, target-size and labelling guidelines in both themes, and survive 2× text on a 360dp-wide phone | `explore_test.dart` |
+| Comparison is side by side on wide windows and stacked on a phone, with the occupation named in every cell | `explore_test.dart` |
+| Repeated controls say what they act on ("Save Electrician", "View details: Electrician") | `explore_test.dart` |
+| Confidence is given in words; no percentage appears on the suggestions page | `explore_test.dart` |
 
 ## Design rules
 

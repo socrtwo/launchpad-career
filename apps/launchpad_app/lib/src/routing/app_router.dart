@@ -3,6 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launchpad_domain/launchpad_domain.dart';
 
+import '../features/explore/compare_page.dart';
+import '../features/explore/explore_page.dart';
+import '../features/explore/occupation_page.dart';
+import '../features/explore/plan_page.dart';
+import '../features/explore/saved_page.dart';
+import '../features/explore/suggestions_page.dart';
 import '../features/goal/goal_page.dart';
 import '../features/home/home_page.dart';
 import '../features/info/info_pages.dart';
@@ -17,6 +23,12 @@ abstract final class Routes {
   static const String somethingElse = '/something-else';
   static const String onboardingBase = '/onboarding';
   static const String yourData = '/your-data';
+  static const String explore = '/explore';
+  static const String occupationBase = '/occupation';
+  static const String compareBase = '/compare';
+  static const String saved = '/saved';
+  static const String suggestions = '/suggestions';
+  static const String planBase = '/plan';
   static const String about = '/about';
   static const String privacy = '/privacy';
   static const String accessibility = '/accessibility';
@@ -27,6 +39,27 @@ abstract final class Routes {
   /// Onboarding questions are addressed by slug too, e.g. `/onboarding/plans`.
   static String onboarding(OnboardingStep step) =>
       '$onboardingBase/${step.slug}';
+
+  /// Occupations are addressed by slug, e.g. `/occupation?id=electrician`.
+  static String occupation(String id) =>
+      '$occupationBase?id=${Uri.encodeQueryComponent(id)}';
+
+  static String plan(String id) =>
+      '$planBase?id=${Uri.encodeQueryComponent(id)}';
+
+  /// The comparison is in the URL so it can be refreshed or shared, e.g.
+  /// `/compare?ids=electrician,plumber`.
+  static String compare(List<String> ids) => ids.isEmpty
+      ? compareBase
+      : '$compareBase?ids=${ids.map(Uri.encodeQueryComponent).join(',')}';
+
+  static List<String> compareIds(Uri uri) {
+    final seen = <String>{};
+    return <String>[
+      for (final id in (uri.queryParameters['ids'] ?? '').split(','))
+        if (id.isNotEmpty && seen.add(id)) id,
+    ].take(Workspace.maxCompared).toList();
+  }
 
   /// Where "Continue where you left off" goes, or null if there is nothing to
   /// come back to.
@@ -99,6 +132,43 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((ref) {
             },
           ),
         ],
+      ),
+      GoRoute(
+        path: Routes.explore,
+        name: 'explore',
+        builder: (context, state) => const ExplorePage(),
+      ),
+      GoRoute(
+        path: Routes.occupationBase,
+        name: 'occupation',
+        builder: (context, state) => OccupationPage(
+          key: ValueKey<String?>(state.uri.queryParameters['id']),
+          occupationId: state.uri.queryParameters['id'],
+        ),
+      ),
+      GoRoute(
+        path: Routes.compareBase,
+        name: 'compare',
+        builder: (context, state) =>
+            ComparePage(ids: Routes.compareIds(state.uri)),
+      ),
+      GoRoute(
+        path: Routes.saved,
+        name: 'saved',
+        builder: (context, state) => const SavedPage(),
+      ),
+      GoRoute(
+        path: Routes.suggestions,
+        name: 'suggestions',
+        builder: (context, state) => const SuggestionsPage(),
+      ),
+      GoRoute(
+        path: Routes.planBase,
+        name: 'plan',
+        builder: (context, state) => PlanPage(
+          key: ValueKey<String?>(state.uri.queryParameters['id']),
+          occupationId: state.uri.queryParameters['id'],
+        ),
       ),
       GoRoute(
         path: Routes.yourData,

@@ -6,7 +6,7 @@ Data minimisation is a design constraint, not a later feature. The product colle
 nothing by default, stores nothing durably unless the person opts in, and transmits
 nothing they enter. Everything below describes how that is kept true as features arrive.
 
-## Current state (Phase 2)
+## Current state (Phase 3)
 
 - No account, no email, no device identifier.
 - `Session` holds the chosen goal, an optional `Profile` (preferred name, education so
@@ -21,6 +21,14 @@ nothing they enter. Everything below describes how that is kept true as features
   and `apps/launchpad_app/test/your_data_test.dart`.
 - Every question states why it is asked next to the question, and every one can be
   skipped.
+- The session also holds a `Workspace`: saved occupations, plans, and steps marked done.
+  Steps a person writes themselves are free text and are treated like the rest of the
+  session: memory until opt-in, then the device store, covered by export and deletion.
+- Searching the catalogue happens on the device against bundled data. The query is not
+  stored and nothing is requested from a server. Labour-market figures are compiled into
+  the app for the same reason: reading about an occupation discloses nothing.
+- Suggestions read interests, education and priorities only. They take no name, age,
+  location or institution; a test pins that the preferred name cannot change the result.
 - No analytics, advertising, attribution, or crash-reporting SDK is in the dependency tree.
   Check with `flutter pub deps` before adding anything. The only plugin is
   `shared_preferences`.

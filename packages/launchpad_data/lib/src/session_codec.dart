@@ -34,6 +34,8 @@ abstract final class SessionCodec {
         'interests': _sorted(profile.interests.map((area) => area.slug)),
         'priorities': _sorted(profile.priorities.map((item) => item.slug)),
       },
+      if (!session.workspace.isEmpty)
+        'workspace': _workspace(session.workspace),
       if (includeFreeText && session.freeTextPrompt != null)
         'somethingElseText': session.freeTextPrompt,
     };
@@ -67,6 +69,67 @@ abstract final class SessionCodec {
             .take(Priority.maxChoices)
             .toSet(),
       ),
+      workspace: _decodeWorkspace(_map(json['workspace'])),
+    );
+  }
+
+  static Map<String, Object?> _workspace(Workspace workspace) {
+    final planIds = workspace.plans.keys.toList()..sort();
+    return <String, Object?>{
+      'saved': _sorted(workspace.savedOccupations),
+      'completed': _sorted(workspace.completed),
+      'plans': <Object?>[
+        for (final id in planIds)
+          <String, Object?>{
+            'occupation': id,
+            if (workspace.plans[id]!.route != null)
+              'route': workspace.plans[id]!.route!.slug,
+            'customSteps': <Object?>[
+              for (final step in workspace.plans[id]!.customSteps)
+                <String, Object?>{'id': step.id, 'text': step.text},
+            ],
+          },
+      ],
+    };
+  }
+
+  static Workspace _decodeWorkspace(Map<String, Object?> json) {
+    final plans = <String, ActionPlan>{};
+    final rawPlans = json['plans'];
+    if (rawPlans is List) {
+      for (final raw in rawPlans) {
+        final plan = _map(raw);
+        final occupation = _string(plan['occupation']);
+        if (occupation == null || occupation.isEmpty) continue;
+        final steps = <CustomStep>[];
+        final rawSteps = plan['customSteps'];
+        if (rawSteps is List) {
+          for (final rawStep in rawSteps.take(ActionPlan.maxCustomSteps)) {
+            final step = _map(rawStep);
+            final id = _string(step['id']);
+            final text = _string(step['text']);
+            if (id == null || text == null || text.trim().isEmpty) continue;
+            steps.add(
+              CustomStep(
+                id: id,
+                text: text.length > CustomStep.maxLength
+                    ? text.substring(0, CustomStep.maxLength)
+                    : text,
+              ),
+            );
+          }
+        }
+        plans[occupation] = ActionPlan(
+          occupationId: occupation,
+          route: RouteKind.fromSlug(_string(plan['route'])),
+          customSteps: List<CustomStep>.unmodifiable(steps),
+        );
+      }
+    }
+    return const Workspace().copyWith(
+      savedOccupations: _strings(json['saved']).toSet(),
+      completed: _strings(json['completed']).toSet(),
+      plans: plans,
     );
   }
 
