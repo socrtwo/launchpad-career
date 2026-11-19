@@ -8,7 +8,7 @@ this file is the summary you follow by default. When in doubt, the docs win — 
 A career-planning and employment-guidance tool for undergraduates, graduate students,
 recent graduates, and career changers. It is **not** a mental-health service, diagnostic
 tool, job board, or promise of employment. Phases 1 (foundation), 2 (onboarding, opt-in
-local storage) and 3 (career exploration) are built; `docs/product/roadmap.md` is the
+local storage), 3 (career exploration) and 4 (employment tools) are built; `docs/product/roadmap.md` is the
 record of what is and is not done, and the interface must say the same thing honestly
 (`docs/product/roadmap.md`, `docs/product/product-principles.md`).
 
@@ -74,6 +74,11 @@ Content rules that are tested, not just reviewed:
   generated labour-market snapshot, each with source and reference period
   (`docs/product/labour-market-data.md`). Never hand-type a statistic, and never invent
   one for a default or placeholder: no data means the interface says "not loaded".
+- **Tools structure a person's own work; they do not grade the person.** No scores,
+  streaks or percentages. An automatic check says it is pattern matching and what it
+  cannot tell. Tests scan the tool pages for these.
+- **New tool state goes in `Workspace.completed` / `choices` / `notes`** with a key helper
+  on `Workspace`, not in a new stored field. Free text goes in `notes` and nowhere else.
 - **Test fixtures use an invented publisher** ("Test Statistics Office") so invented
   numbers can never be mistaken for real ones.
 

@@ -21,7 +21,8 @@ void main() {
 
     expect(find.byType(GoalPage), findsOneWidget);
     expect(find.text('Help me find an internship or job'), findsWidgets);
-    expect(find.text('What happens next'), findsOneWidget);
+    expect(find.text('Start here'), findsOneWidget);
+    expect(find.text('Weekly job-search plan'), findsOneWidget);
   });
 
   testWidgets('Something else opens the open-text flow', (tester) async {

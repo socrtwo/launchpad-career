@@ -80,41 +80,24 @@ class GoalPage extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: Spacing.lg),
-              if (tools.isEmpty) ...<Widget>[
-                NoticeCard(text: strings.goalToolsNotice),
-                const SizedBox(height: Spacing.lg),
-                Semantics(
-                  header: true,
-                  child: Text(
-                    strings.whatHappensNext,
-                    style: Theme.of(context).textTheme.headlineSmall,
+              Semantics(
+                header: true,
+                child: Text(
+                  strings.goalToolsHeading,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+              ),
+              const SizedBox(height: Spacing.sm),
+              for (final tool in tools)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: Spacing.sm),
+                  child: SecondaryChoiceTile(
+                    title: tool.title,
+                    description: tool.description,
+                    icon: tool.icon,
+                    onPressed: () => context.go(tool.location),
                   ),
                 ),
-                const SizedBox(height: Spacing.xs),
-                Text(
-                  goal.nextStep,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ] else ...<Widget>[
-                Semantics(
-                  header: true,
-                  child: Text(
-                    strings.goalToolsHeading,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                ),
-                const SizedBox(height: Spacing.sm),
-                for (final tool in tools)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: Spacing.sm),
-                    child: SecondaryChoiceTile(
-                      title: tool.title,
-                      description: tool.description,
-                      icon: tool.icon,
-                      onPressed: () => context.go(tool.location),
-                    ),
-                  ),
-              ],
               const SizedBox(height: Spacing.xl),
               Wrap(
                 spacing: Spacing.sm,
@@ -129,6 +112,10 @@ class GoalPage extends ConsumerWidget {
                     onPressed: () =>
                         context.go(Routes.onboarding(OnboardingStep.review)),
                     child: Text(strings.yourAnswers),
+                  ),
+                  OutlinedButton(
+                    onPressed: () => context.go(Routes.tools),
+                    child: Text(strings.toolsTitle),
                   ),
                 ],
               ),

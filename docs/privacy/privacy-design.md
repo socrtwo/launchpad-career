@@ -6,7 +6,7 @@ Data minimisation is a design constraint, not a later feature. The product colle
 nothing by default, stores nothing durably unless the person opts in, and transmits
 nothing they enter. Everything below describes how that is kept true as features arrive.
 
-## Current state (Phase 3)
+## Current state (Phase 4)
 
 - No account, no email, no device identifier.
 - `Session` holds the chosen goal, an optional `Profile` (preferred name, education so
@@ -24,6 +24,11 @@ nothing they enter. Everything below describes how that is kept true as features
 - The session also holds a `Workspace`: saved occupations, plans, and steps marked done.
   Steps a person writes themselves are free text and are treated like the rest of the
   session: memory until opt-in, then the device store, covered by export and deletion.
+- The employment tools add checklists, self-ratings and notes to the `Workspace`. Notes
+  are free text and follow the same rule as everything else. The tools never ask for a
+  résumé or a profile: a person works on their own documents with the guide beside them.
+  A résumé line typed into the wording check is examined on the device and forgotten
+  unless the person presses "Keep this line". Nothing connects to LinkedIn.
 - Searching the catalogue happens on the device against bundled data. The query is not
   stored and nothing is requested from a server. Labour-market figures are compiled into
   the app for the same reason: reading about an occupation discloses nothing.

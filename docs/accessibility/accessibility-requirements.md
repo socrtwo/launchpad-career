@@ -26,6 +26,10 @@ requirements the code is written and tested against.
 | Comparison is side by side on wide windows and stacked on a phone, with the occupation named in every cell | `explore_test.dart` |
 | Repeated controls say what they act on ("Save Electrician", "View details: Electrician") | `explore_test.dart` |
 | Confidence is given in words; no percentage appears on the suggestions page | `explore_test.dart` |
+| Every tool page meets contrast, target-size and labelling guidelines in both themes, and survives 2× text on a 360dp-wide phone | `tools_test.dart` |
+| Progress is given in words on every row; bars are hidden from assistive technology | `tools_test.dart` |
+| Skill ratings are announced with the skill they rate ("Not yet: Fault finding") as one of a group | `skills_page.dart`, guideline matchers in `tools_test.dart` |
+| Interview question tiles announce what they open and whether it has been practised | `tools_test.dart` |
 
 ## Design rules
 

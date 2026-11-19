@@ -14,13 +14,13 @@ guaranteed-employment claims.
 
 ## Project status
 
-**Phases 1 to 3 are built and tested**: the home screen, onboarding questions, opt-in local
-storage with export and deletion, and career exploration (browse, compare, save,
-rule-based suggestions with visible reasons, action plans). Two things in Phase 3 are
-deliberately unfinished and the interface says so: occupation descriptions are AI-assisted
-drafts awaiting review by a careers adviser, and no pay figures are loaded yet, so none
-are shown. The tools for the job-search, resume, interview and skills goals are still
-described placeholders.
+**Phases 1 to 4 are built and tested**: the home screen, onboarding questions, opt-in local
+storage with export and deletion, career exploration (browse, compare, save, rule-based
+suggestions with visible reasons, action plans), and the employment tools (weekly
+job-search plan, résumé and LinkedIn guides, interview practice, skills plan, progress).
+Two things are deliberately unfinished and the interface says so: occupation descriptions
+and tool guidance are AI-assisted drafts awaiting review by a careers adviser, and no pay
+figures are loaded yet, so none are shown. There is no backend and there are no accounts.
 
 The record of what is done is [`docs/product/roadmap.md`](docs/product/roadmap.md).
 
@@ -189,10 +189,10 @@ in bulk with `tool/create_issues.sh` (requires the `gh` CLI).
 
 ## Known limitations
 
-- Phases 1 to 3 are implemented. Two goals (direction, and major or graduate path) lead to
-  working tools; the other four still describe planned tools rather than providing them.
-- The occupation catalogue is small (under thirty occupations) and its text is an
-  AI-assisted draft, labelled as such, not yet reviewed by a careers adviser.
+- Phases 1 to 4 are implemented. Every goal leads to working tools.
+- The occupation catalogue is small (under thirty occupations). Its text, and the guidance
+  in every tool, is an AI-assisted draft, labelled as such, not yet reviewed by a careers
+  adviser.
 - No pay or employment figures are bundled yet. The importer exists
   (`docs/product/labour-market-data.md`); until it has been run the interface shows no
   numbers.

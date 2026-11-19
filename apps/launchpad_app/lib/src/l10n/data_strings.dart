@@ -43,8 +43,9 @@ mixin DataStrings {
 
   String get whatIsStoredBody =>
       'If you turn saving on: the goal you chose, your answers to the '
-      'questions, the step you reached, the occupations you saved, and your '
-      'plans, including any steps you wrote yourself. Nothing else.';
+      'questions, the step you reached, the occupations you saved, your '
+      'plans, what you ticked off in each tool, and anything you wrote in a '
+      'plan, note or kept resume line. Nothing else.';
 
   String get whatIsNotStoredHeading => 'What is never saved';
 

@@ -7,6 +7,7 @@
 library;
 
 export 'src/bundled_labor_market_repository.dart';
+export 'src/catalog/guidance.dart';
 export 'src/catalog/occupations.dart';
 export 'src/catalog/plan_templates.dart';
 export 'src/in_memory_goal_catalog_repository.dart';

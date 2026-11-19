@@ -53,6 +53,28 @@ final Provider<LaborMarketRepository> laborMarketRepositoryProvider =
   (ref) => const BundledLaborMarketRepository(),
 );
 
+final Provider<GuidanceRepository> guidanceRepositoryProvider =
+    Provider<GuidanceRepository>((ref) => const InMemoryGuidanceRepository());
+
+final FutureProvider<List<GuideItem>> resumeSectionsProvider =
+    FutureProvider<List<GuideItem>>(
+  (ref) => ref.watch(guidanceRepositoryProvider).resumeSections(),
+);
+
+final FutureProvider<List<GuideItem>> linkedInSectionsProvider =
+    FutureProvider<List<GuideItem>>(
+  (ref) => ref.watch(guidanceRepositoryProvider).linkedInSections(),
+);
+
+final FutureProvider<List<InterviewQuestion>> interviewQuestionsProvider =
+    FutureProvider<List<InterviewQuestion>>(
+  (ref) => ref.watch(guidanceRepositoryProvider).interviewQuestions(),
+);
+
+final searchWeekProvider = FutureProvider.family<List<SearchTask>, SearchHours>(
+  (ref, hours) => ref.watch(guidanceRepositoryProvider).searchWeek(hours),
+);
+
 /// Today, for deciding whether a figure is stale. A provider so a test can
 /// stand in a fixed date.
 final Provider<DateTime Function()> clockProvider =
@@ -231,6 +253,46 @@ class SessionController extends Notifier<Session> {
             workspace.isDone(key) ? workspace.toggleDone(key) : workspace,
       ),
     );
+  }
+
+  /// Records a selection from a closed set; null clears it.
+  void setChoice(String key, String? value) => _commit(
+        state.copyWith(workspace: state.workspace.withChoice(key, value)),
+      );
+
+  /// Records free text the person typed; blank clears it.
+  void setNote(String key, String? text) =>
+      _commit(state.copyWith(workspace: state.workspace.withNote(key, text)));
+
+  void closeSearchWeek() => _commit(
+        state.copyWith(workspace: state.workspace.withSearchWeekClosed()),
+      );
+
+  /// Keeps a resume line. Returns false if the limit is reached or the line
+  /// is blank.
+  bool keepBullet(String text) {
+    if (text.trim().isEmpty) return false;
+    final workspace = state.workspace;
+    for (var i = 0; i < Workspace.maxSavedBullets; i++) {
+      final key = Workspace.resumeBulletKey(i);
+      if (workspace.notes.containsKey(key)) continue;
+      final next = workspace.withNote(key, text);
+      if (identical(next, workspace)) return false;
+      _commit(state.copyWith(workspace: next));
+      return true;
+    }
+    return false;
+  }
+
+  /// Removes the kept line with this exact text.
+  void removeBullet(String text) {
+    for (var i = 0; i < Workspace.maxSavedBullets; i++) {
+      final key = Workspace.resumeBulletKey(i);
+      if (state.workspace.notes[key] == text) {
+        setNote(key, null);
+        return;
+      }
+    }
   }
 
   void removePlan(String occupationId) => _commit(

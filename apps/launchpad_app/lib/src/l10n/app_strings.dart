@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'data_strings.dart';
 import 'explore_strings.dart';
 import 'onboarding_strings.dart';
+import 'tools_strings.dart';
 
 /// Hand-written localisation table.
 ///
@@ -13,7 +14,8 @@ import 'onboarding_strings.dart';
 /// intentionally *not* here - they come from the catalogue repository, because
 /// they are editorial content destined for a CMS.
 @immutable
-class AppStrings with OnboardingStrings, DataStrings, ExploreStrings {
+class AppStrings
+    with OnboardingStrings, DataStrings, ExploreStrings, ToolsStrings {
   const AppStrings();
 
   static const AppStrings en = AppStrings();
@@ -54,12 +56,6 @@ class AppStrings with OnboardingStrings, DataStrings, ExploreStrings {
   String get loading => 'Loading options';
 
   String get backToStart => 'Back to start';
-
-  String get whatHappensNext => 'What happens next';
-
-  String get goalToolsNotice =>
-      'This build is an early preview. The tools for this goal are planned, '
-      'not yet built. What they will do is described below.';
 
   String get goalToolsHeading => 'Start here';
 
