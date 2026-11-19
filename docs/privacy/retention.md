@@ -16,6 +16,9 @@ that, everything lives in memory and ends with the process.
 | Onboarding step reached | Memory; device store after opt-in | Same | Same |
 | Saved occupations, plans, the route each plan follows, steps marked done | Memory; device store after opt-in | Same | `occupation_catalog_test.dart` (`SessionCodec with a workspace`), `explore_test.dart` |
 | Plan steps the person wrote themselves (free text, up to 200 characters each, 12 per plan) | Memory; device store after opt-in | Same; also removed when the step or its plan is removed | `explore_test.dart` (`steps a person writes are stored only after opting in`) |
+| Tool checklists (résumé, LinkedIn, interview questions practised, this week's job-search tasks), time available for the search, weeks finished, skill self-ratings | Memory; device store after opt-in | Same | `guidance_test.dart` (`SessionCodec with tool state`), `tools_test.dart` |
+| Notes the person writes: interview example notes, the weekly job-search note, a skills project idea, résumé lines they chose to keep (free text, up to 600 characters each, 200 notes in all) | Memory; device store after opt-in | Same; the weekly note is also cleared when the week is finished | `tools_test.dart` (`tool state is stored only after opting in, and is exported`) |
+| A résumé line typed into the wording check and not kept | Widget state only; never the session, never the store | Leaving the page or typing over it | `tools_test.dart` (`checked, not kept`) |
 | Search text typed on the browse page | Widget state only; never the session, never the store | Leaving the page | Not part of `Session` |
 | The opt-in itself (granted, when, wording version) | Device store | Saving turned off or everything deleted | Same |
 | "Something else" free text | Memory only, never the device store | The app is closed, or everything is deleted | `the free text never reaches the store`, `your_data_test.dart` |

@@ -11,6 +11,7 @@ before that label may change.
 | --- | --- | --- |
 | Occupation summaries, tasks, skills, routes and change notes | `packages/launchpad_data/lib/src/catalog/occupations.dart` | "This description was drafted with AI assistance in November 2026 and has not yet been reviewed by a careers adviser." on every occupation, comparison, plan and suggestion list |
 | Plan step templates | `packages/launchpad_data/lib/src/catalog/plan_templates.dart` | Same label, on every plan page |
+| Résumé and LinkedIn checklists, the interview question bank, the weekly job-search plan | `packages/launchpad_data/lib/src/catalog/guidance.dart` | "This guidance was drafted with AI assistance and has not yet been reviewed by a careers adviser." at the foot of every tool |
 
 ## What is not a draft
 
@@ -19,6 +20,11 @@ before that label may change.
   says so and shows the rule behind each suggestion.
 - **Pay and employment figures** come only from the labour-market snapshot and are
   labelled with their publisher and reference period.
+- **The résumé wording check** is a handful of fixed patterns (`ResumeBulletCheck` in
+  `launchpad_domain`). It is not a model, and the page says what it cannot tell.
+- **The counts in the weekly job-search plan** divide the time a person said they have.
+  They are not statistics about what works, and the page says so before showing one. A
+  reviewer should still judge whether the split is sensible.
 
 ## Before an entry may be relabelled "written and reviewed by a careers editor"
 

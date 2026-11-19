@@ -55,6 +55,7 @@ lib/src/
     ├── onboarding/
     ├── goal/
     ├── explore/        browse, occupation, compare, saved, suggestions, plan
+    ├── tools/          job-search plan, résumé, LinkedIn, interview, skills, progress
     ├── something_else/
     ├── your_data/
     └── info/
@@ -106,6 +107,13 @@ list internally for exactly this reason.
 | `/saved` | Saved occupations and their plans |
 | `/suggestions` | Occupations matched to the person's answers, with reasons |
 | `/plan?id=<slug>` | Action plan towards one occupation |
+| `/tools` | Every tool in one list |
+| `/tools/search-plan` | Weekly job-search plan |
+| `/tools/resume` | Résumé checklist and wording check |
+| `/tools/linkedin` | LinkedIn profile checklist |
+| `/tools/interview[?q=<slug>]` | Question bank, or one question |
+| `/tools/skills[?id=<slug>]` | Skill self-rating for an occupation |
+| `/progress` | Everything done so far, in words |
 | `/your-data` | Storage opt-in, export, deletion |
 | `/about` | Product scope and disclaimers |
 | `/privacy` | What this build does with data; not yet a reviewed notice |
@@ -116,6 +124,18 @@ repoint saved links or stored state; `GoalId.fromSlug` is the only way in.
 
 The goal page reads its goal from the URL rather than from selection state, so a refreshed
 or shared link works.
+
+## Tool state
+
+Every tool keeps its state in `Workspace`, in three flat collections rather than a field
+per tool: `completed` (a set of namespaced identifiers such as `resume/education`),
+`choices` (key to slug, for selections from a closed set) and `notes` (key to free text).
+The keys are built by static helpers on `Workspace` and nowhere else. The pay-off is that
+a new tool needs no change to the stored shape, the codec, export or deletion; the cost is
+that the keys are strings, which is why they are built in one place and tested.
+
+Which tools suit which goal is a single table, `toolIdsFor` in
+`features/goal/goal_tools.dart`.
 
 ## Recommendations
 

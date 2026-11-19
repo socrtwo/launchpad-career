@@ -36,10 +36,8 @@ void main() {
   group('browse', () {
     testWidgets('lists the whole catalogue with a count', (tester) async {
       await pumpApp(tester);
-      await tapVisible(
-        tester,
-        find.widgetWithText(TextButton, 'Browse occupations'),
-      );
+      await tapVisible(tester, find.widgetWithText(TextButton, 'All tools'));
+      await tapVisible(tester, find.text('Browse occupations'));
 
       expect(find.byType(ExplorePage), findsOneWidget);
       expect(
@@ -684,12 +682,19 @@ void main() {
       expect(find.byType(SuggestionsPage), findsOneWidget);
     });
 
-    testWidgets('a goal without tools still says they are planned',
+    testWidgets('every goal leads to at least two working tools',
         (tester) async {
       await pumpApp(tester);
-      await goTo(tester, Routes.goalFor(GoalId.interviewPreparation));
-      expect(find.text('What happens next'), findsOneWidget);
-      expect(find.textContaining('planned, not yet built'), findsOneWidget);
+      for (final goal in GoalId.values) {
+        await goTo(tester, Routes.goalFor(goal));
+        expect(find.text('Start here'), findsOneWidget, reason: goal.slug);
+        expect(
+          find.byType(SecondaryChoiceTile),
+          findsAtLeastNWidgets(2),
+          reason: goal.slug,
+        );
+        expect(find.textContaining('not yet built'), findsNothing);
+      }
     });
   });
 

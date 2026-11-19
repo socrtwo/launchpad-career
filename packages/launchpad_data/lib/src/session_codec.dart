@@ -78,6 +78,9 @@ abstract final class SessionCodec {
     return <String, Object?>{
       'saved': _sorted(workspace.savedOccupations),
       'completed': _sorted(workspace.completed),
+      if (workspace.choices.isNotEmpty)
+        'choices': _sortedMap(workspace.choices),
+      if (workspace.notes.isNotEmpty) 'notes': _sortedMap(workspace.notes),
       'plans': <Object?>[
         for (final id in planIds)
           <String, Object?>{
@@ -130,7 +133,41 @@ abstract final class SessionCodec {
       savedOccupations: _strings(json['saved']).toSet(),
       completed: _strings(json['completed']).toSet(),
       plans: plans,
+      choices: _stringMap(json['choices'], maxValueLength: 64),
+      notes: _stringMap(
+        json['notes'],
+        maxValueLength: Workspace.maxNoteLength,
+        maxEntries: Workspace.maxNotes,
+      ),
     );
+  }
+
+  static Map<String, String> _sortedMap(Map<String, String> values) {
+    final keys = values.keys.toList()..sort();
+    return <String, String>{for (final key in keys) key: values[key]!};
+  }
+
+  /// Reads a string-to-string map, dropping anything that is not one and
+  /// anything over the limits, so a hand-edited or damaged copy cannot load
+  /// more than the app itself would ever write.
+  static Map<String, String> _stringMap(
+    Object? value, {
+    required int maxValueLength,
+    int maxEntries = 500,
+  }) {
+    if (value is! Map) return const <String, String>{};
+    final result = <String, String>{};
+    for (final entry in value.entries) {
+      if (result.length >= maxEntries) break;
+      final key = entry.key;
+      final item = entry.value;
+      if (key is! String || item is! String) continue;
+      if (key.isEmpty || key.length > 120 || item.trim().isEmpty) continue;
+      result[key] = item.length > maxValueLength
+          ? item.substring(0, maxValueLength)
+          : item;
+    }
+    return result;
   }
 
   static List<String> _sorted(Iterable<String> values) =>

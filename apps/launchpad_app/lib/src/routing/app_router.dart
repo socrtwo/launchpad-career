@@ -14,6 +14,12 @@ import '../features/home/home_page.dart';
 import '../features/info/info_pages.dart';
 import '../features/onboarding/onboarding_page.dart';
 import '../features/something_else/something_else_page.dart';
+import '../features/tools/guide_pages.dart';
+import '../features/tools/interview_page.dart';
+import '../features/tools/progress_page.dart';
+import '../features/tools/search_plan_page.dart';
+import '../features/tools/skills_page.dart';
+import '../features/tools/tools_page.dart';
 import '../features/your_data/your_data_page.dart';
 import '../l10n/app_strings.dart';
 
@@ -29,6 +35,21 @@ abstract final class Routes {
   static const String saved = '/saved';
   static const String suggestions = '/suggestions';
   static const String planBase = '/plan';
+  static const String tools = '/tools';
+  static const String searchPlan = '/tools/search-plan';
+  static const String resumeGuide = '/tools/resume';
+  static const String linkedIn = '/tools/linkedin';
+  static const String interview = '/tools/interview';
+  static const String skills = '/tools/skills';
+  static const String progress = '/progress';
+
+  /// Interview questions are addressed by slug, e.g.
+  /// `/tools/interview?q=teamwork`.
+  static String interviewQuestion(String id) =>
+      '$interview?q=${Uri.encodeQueryComponent(id)}';
+
+  static String skillsFor(String occupationId) =>
+      '$skills?id=${Uri.encodeQueryComponent(occupationId)}';
   static const String about = '/about';
   static const String privacy = '/privacy';
   static const String accessibility = '/accessibility';
@@ -169,6 +190,49 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((ref) {
           key: ValueKey<String?>(state.uri.queryParameters['id']),
           occupationId: state.uri.queryParameters['id'],
         ),
+      ),
+      GoRoute(
+        path: Routes.tools,
+        name: 'tools',
+        builder: (context, state) => const ToolsPage(),
+        routes: <RouteBase>[
+          GoRoute(
+            path: 'search-plan',
+            name: 'search-plan',
+            builder: (context, state) => const SearchPlanPage(),
+          ),
+          GoRoute(
+            path: 'resume',
+            name: 'resume',
+            builder: (context, state) => const ResumePage(),
+          ),
+          GoRoute(
+            path: 'linkedin',
+            name: 'linkedin',
+            builder: (context, state) => const LinkedInPage(),
+          ),
+          GoRoute(
+            path: 'interview',
+            name: 'interview',
+            builder: (context, state) => InterviewPage(
+              key: ValueKey<String?>(state.uri.queryParameters['q']),
+              questionId: state.uri.queryParameters['q'],
+            ),
+          ),
+          GoRoute(
+            path: 'skills',
+            name: 'skills',
+            builder: (context, state) => SkillsPage(
+              key: ValueKey<String?>(state.uri.queryParameters['id']),
+              occupationId: state.uri.queryParameters['id'],
+            ),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: Routes.progress,
+        name: 'progress',
+        builder: (context, state) => const ProgressPage(),
       ),
       GoRoute(
         path: Routes.yourData,

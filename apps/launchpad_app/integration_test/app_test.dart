@@ -20,6 +20,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(GoalPage), findsOneWidget);
-    expect(find.text('What happens next'), findsOneWidget);
+    expect(find.text('Start here'), findsOneWidget);
   });
 }

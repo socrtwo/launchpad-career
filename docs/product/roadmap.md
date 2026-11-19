@@ -1,8 +1,8 @@
 # Roadmap
 
-Phases 1 and 2 are done and Phase 3 is done except for importing real figures. Everything
-after that is planned, not built. Progress claims in the interface must match this
-document.
+Phases 1, 2 and 4 are done and Phase 3 is done except for importing real figures.
+Everything after that is planned, not built. Progress claims in the interface must match
+this document.
 
 ## Phase 1 — Foundation (complete)
 
@@ -46,14 +46,18 @@ document.
 Occupation descriptions and plan steps are AI-assisted drafts, labelled as such in the
 interface, and await review by a careers adviser (`docs/product/content-review.md`).
 
-## Phase 4 — Employment tools
+## Phase 4 — Employment tools (complete)
 
-- [ ] Internship and job-search planning
-- [ ] Résumé guidance
-- [ ] LinkedIn guidance
-- [ ] Interview practice
-- [ ] Skill-gap planning
-- [ ] Progress tracking
+- [x] Internship and job-search planning — a repeatable week sized to the time available
+- [x] Résumé guidance — section checklist and a rule-based wording check for single lines
+- [x] LinkedIn guidance — profile checklist; no connection to LinkedIn
+- [x] Interview practice — question bank with purpose, tips and example notes
+- [x] Skill-gap planning — self-rating against an occupation's skills, and what to work on
+- [x] Progress tracking — one page, in words, with no scores or streaks
+
+All tool guidance is an AI-assisted draft, labelled as such in the interface, and awaits
+review by a careers adviser (`docs/product/content-review.md`). The tools structure a
+person's own work; none of them sees a résumé or a profile, and none grades the person.
 
 ## Phase 5 — Backend and accounts
 
