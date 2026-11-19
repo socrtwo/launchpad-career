@@ -209,6 +209,9 @@ Two deliberate choices:
 | Unit | `packages/*/test` | Contrast maths, breakpoints, slugs, catalogue invariants |
 | Widget | `apps/launchpad_app/test` | The real widget tree: selection, routing, layout, semantics, themes |
 | Integration | `apps/launchpad_app/integration_test` | End-to-end on a real device or browser |
+| Contract | `packages/launchpad_data/test/account_contract_test.dart` | The app's account client against the real server handler |
+| Server | `services/launchpad_server/test` | Every endpoint, the store, the cryptography, the log |
+| Browser | `tool/web_audit/audit.cjs` | The release web build in Chromium: every request stays on the page's origin |
 
 Widget tests pump the actual `LaunchpadApp` with the real router and theme, not a
 simplified harness — a test that passes against a stand-in tree proves little.
@@ -218,6 +221,15 @@ internally, so wrapping the app in a `MediaQuery` to fake brightness, text scale
 reduce-motion silently asserts nothing. `test/helpers.dart` sets these on the test
 `PlatformDispatcher` and sizes `tester.view` directly.
 
+## Web build
+
+`tool/build_web.sh` is the only supported way to make a release web build. It serves
+CanvasKit locally, compiles without run-time code generation, and writes a content
+security policy into `index.html`. The typeface is bundled by the app under the exact
+family name `Roboto`, and `web/flutter_bootstrap.js` points fallback-font lookups at the
+site's own origin. Why each of those is needed, and the trade-off for non-Latin text, is
+in `docs/release/web-hosting.md`.
+
 ## Known Flutter-specific hazards recorded here so they are not rediscovered
 
 - `AnimatedSize` must not be given `Duration.zero`. `RenderAnimatedSize` restarts its
@@ -226,6 +238,10 @@ reduce-motion silently asserts nothing. `test/helpers.dart` sets these on the te
   entirely rather than animating over zero milliseconds. See `_RevealedDescription`.
 - `tester.binding.setSurfaceSize` does not feed through to `MediaQuery`; layout tests that
   rely on it run at the default 800×600 and pass for the wrong reason.
+- Flutter's web engine downloads Roboto from `fonts.gstatic.com` unless the app's font
+  manifest has a family named exactly `Roboto`. Declaring the font in a package gives it
+  the family `packages/<name>/Roboto`, which does not count. Found by the browser audit;
+  unit and widget tests cannot see it.
 - `go_router` builds one page per route *pattern*. For `/onboarding/:step` that means the
   page's `State` is reused when only the parameter changes, so `initState` runs once for
   the whole sequence. The route builder keys the page widget by step.

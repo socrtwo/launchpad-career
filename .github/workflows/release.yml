@@ -1,0 +1,180 @@
+name: Release
+
+# Signed release builds. Separate from ci.yml on purpose: this is the only
+# workflow that touches signing material, and it reads all of it from the
+# "release" environment's secrets. Nothing secret is in the repository.
+#
+# STATUS: written, never run. No signing credentials exist for this project
+# yet, so the Android job has not been exercised and may need adjustment the
+# first time it is. It checks its own result (the signer of the bundle must
+# match the fingerprint on record) so that a wrongly signed build fails here
+# rather than at a store. iOS, macOS and Windows signing are not automated;
+# see docs/release/release-process.md.
+#
+# Required in the "release" environment before the first run:
+#   secrets.ANDROID_KEYSTORE_BASE64   the upload keystore, base64
+#   secrets.ANDROID_KEYSTORE_PASSWORD
+#   secrets.ANDROID_KEY_ALIAS
+#   secrets.ANDROID_KEY_PASSWORD
+#   vars.ANDROID_CERT_SHA256          the upload certificate's SHA-256, as keytool prints it
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: "3.44.8"
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: ./tool/dev.sh get
+      - run: ./tool/dev.sh ci
+      - name: Tag matches the app version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          version="$(sed -n 's/^version: \([0-9.]*\).*/\1/p' apps/launchpad_app/pubspec.yaml)"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match pubspec version $version." >&2
+            exit 1
+          fi
+
+  web:
+    name: Web build
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+        working-directory: apps/launchpad_app
+      - run: ./tool/build_web.sh
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Audit network requests
+        run: |
+          (cd tool/web_audit && npm install --no-audit --no-fund && npx playwright install --with-deps chromium)
+          node tool/web_audit/audit.cjs
+      - name: Package
+        run: |
+          tar -C apps/launchpad_app/build -czf launchpad-career-web.tar.gz web
+          sha256sum launchpad-career-web.tar.gz > launchpad-career-web.tar.gz.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: launchpad-career-web.tar.gz*
+
+  android:
+    name: Signed Android bundle
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - name: Signing material is configured
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          FINGERPRINT: ${{ vars.ANDROID_CERT_SHA256 }}
+        run: |
+          if [ -z "$KEYSTORE" ] || [ -z "$FINGERPRINT" ]; then
+            echo "The release environment has no Android signing material. See docs/release/release-process.md." >&2
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      # Platform folders are generated, not committed, so signing cannot live
+      # in a build file. The Android Gradle plugin's injected signing
+      # properties are supplied through the runner's own Gradle properties,
+      # outside the checkout, and removed at the end.
+      - name: Provide the upload key
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          umask 077
+          printf '%s' "$KEYSTORE" | base64 --decode > "$RUNNER_TEMP/upload.jks"
+          mkdir -p "$HOME/.gradle"
+          {
+            echo "android.injected.signing.store.file=$RUNNER_TEMP/upload.jks"
+            echo "android.injected.signing.store.password=$STORE_PASSWORD"
+            echo "android.injected.signing.key.alias=$KEY_ALIAS"
+            echo "android.injected.signing.key.password=$KEY_PASSWORD"
+          } >> "$HOME/.gradle/gradle.properties"
+
+      - name: Build
+        working-directory: apps/launchpad_app
+        run: |
+          flutter create --org com.launchpadcareer --platforms=android .
+          flutter pub get
+          flutter build appbundle --release --build-number="$GITHUB_RUN_NUMBER"
+
+      - name: The bundle is signed with the upload key
+        env:
+          FINGERPRINT: ${{ vars.ANDROID_CERT_SHA256 }}
+        run: |
+          bundle=apps/launchpad_app/build/app/outputs/bundle/release/app-release.aab
+          actual="$(keytool -printcert -jarfile "$bundle" | sed -n 's/^[[:space:]]*SHA256: //p' | head -n 1)"
+          if [ -z "$actual" ] || [ "$actual" != "$FINGERPRINT" ]; then
+            echo "The bundle is not signed with the expected certificate." >&2
+            exit 1
+          fi
+          sha256sum "$bundle" > "$bundle.sha256"
+
+      - name: Remove the upload key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload.jks" "$HOME/.gradle/gradle.properties"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: apps/launchpad_app/build/app/outputs/bundle/release/app-release.aab*
+
+  draft-release:
+    name: Draft release notes
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [web, android]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Create a draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ./tool/release_notes.sh "$GITHUB_REF_NAME" > notes.md
+          gh release create "$GITHUB_REF_NAME" artifacts/* --draft --title "$GITHUB_REF_NAME" --notes-file notes.md

@@ -428,7 +428,6 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             child: SelectableText(
               export,
               style: theme.textTheme.bodyMedium?.copyWith(
-                fontFamily: 'monospace',
                 color: theme.colorScheme.onSurface,
               ),
             ),
