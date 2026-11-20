@@ -65,7 +65,7 @@ jobs:
       - run: flutter pub get
         working-directory: apps/launchpad_app
       - run: ./tool/build_web.sh
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: Audit network requests

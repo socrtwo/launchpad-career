@@ -58,7 +58,7 @@ jobs:
 
       # A build with an account service talks to that service by design, so
       # the "nothing leaves the origin" audit applies only to the default one.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: inputs.api_url == ''
         with:
           node-version: "22"
