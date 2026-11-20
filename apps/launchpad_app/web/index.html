@@ -17,6 +17,12 @@
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
+  <!--
+    Release builds get a Content-Security-Policy meta tag here, added by
+    tool/build_web.sh. It is not in this source file because the debug
+    compiler used by `flutter run` needs script features the policy forbids.
+  -->
+  <!-- CSP_PLACEHOLDER -->
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Practical career guidance for college students, graduate students, and recent graduates.">
 

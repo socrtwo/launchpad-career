@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Workspace helper. Replaces Melos for a five-package, path-linked workspace.
+# Workspace helper. Replaces Melos for a small, path-linked workspace.
 #
 #   ./tool/dev.sh get       resolve dependencies everywhere
 #   ./tool/dev.sh format    format in place
@@ -13,8 +13,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-# Dependency order: leaves first.
+# Dependency order: leaves first. The server is a pure Dart package with no
+# dependency on the others; the data package's contract tests run against it.
 PACKAGES=(
+  services/launchpad_server
   packages/launchpad_domain
   packages/launchpad_data
   packages/launchpad_core
@@ -34,7 +36,7 @@ case "${1:-}" in
     each flutter pub get
     ;;
   format)
-    dart format apps packages
+    dart format apps packages services
     ;;
   analyze)
     each flutter analyze
@@ -48,7 +50,7 @@ case "${1:-}" in
     done
     ;;
   ci)
-    dart format --output=none --set-exit-if-changed apps packages
+    dart format --output=none --set-exit-if-changed apps packages services
     each flutter analyze
     "$0" test
     ;;

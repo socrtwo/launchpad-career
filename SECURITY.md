@@ -30,8 +30,15 @@ credit.
 In scope: this repository's application and package code, its CI workflows, and its
 dependency configuration.
 
-Out of scope for now: there is no backend, no authentication, and no production deployment.
-Findings that depend on those will be re-scoped when Phase 5 lands.
+Also in scope: the optional account and sync server in `services/launchpad_server`
+(authentication, token handling, consent enforcement, rate limiting, the data store) and
+the app's client for it. Its design and the limitations already known are written down in
+`services/launchpad_server/README.md` and `docs/release/security-review.md`; reports that
+go beyond those are especially welcome.
+
+Out of scope for now: any particular deployment. This project does not run the server
+anywhere, so there is no production system to test against. Do not test against a
+deployment you do not operate.
 
 ## Notes on secrets
 
