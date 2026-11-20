@@ -40,16 +40,27 @@ changing, the catalogue says so in words (`Occupation.changeNote`).
 
 ```sh
 cd packages/launchpad_data
-dart run tool/import_oews.dart --save-responses=/tmp/oews --occupation-table=oe.occupation
+BLS_API_KEY=your-key dart run tool/import_oews.dart \
+  --save-responses=/tmp/oews --occupation-table=oe.occupation
 dart format lib/src/labor/oews_snapshot.g.dart
-flutter test
+cd ../.. && ./tool/dev.sh ci
 ```
 
-- `--save-responses` keeps the raw API responses so an import can be audited and repeated
-  with `--from-dir`.
-- `--occupation-table` checks every catalogue SOC code and official title against the
-  Bureau's own `oe.occupation` list, so a mistyped code cannot attach one occupation's pay
-  to another. Run with it whenever the catalogue's codes change.
+- **`BLS_API_KEY`** is a free registration key from
+  <https://data.bls.gov/registrationEngine/>. Without one the Bureau gives each network
+  address a small daily allowance, which on a shared address (a cloud runner, an office
+  network) is usually already spent. The key is read from the environment only, is sent
+  in the request body where the API expects it, and is never printed or written to a
+  saved response. Do not commit it.
+- **`--save-responses`** keeps the raw API responses so an import can be audited and
+  repeated with `--from-dir`.
+- **`--occupation-table`** checks every catalogue SOC code and official title against the
+  Bureau's own `oe.occupation` list
+  (<https://download.bls.gov/pub/time.series/oe/oe.occupation>), so a mistyped code cannot
+  attach one occupation's pay to another. That server refuses automated clients that do
+  not identify themselves with a contact address, so download the file in a browser and
+  pass its path. Run with it on the first import and whenever the catalogue's codes
+  change.
 
 The importer writes nothing if any check fails: a request that did not succeed, series
 that report different years, an occupation with no median, or a missing all-occupations
@@ -57,6 +68,24 @@ median.
 
 ## Status
 
-The importer and its checks are built and tested against a fixture in the API's response
-format. See the roadmap for whether a snapshot has been imported; the generated file
-`packages/launchpad_data/lib/src/labor/oews_snapshot.g.dart` is the ground truth.
+**No snapshot has been imported.** The generated file
+`packages/launchpad_data/lib/src/labor/oews_snapshot.g.dart` returns `null`, so the
+interface says pay figures are not loaded and shows none.
+
+What has been tried, so nobody repeats it blind:
+
+| Date | Attempt | Result |
+| --- | --- | --- |
+| 19 Nov 2026 | Any request to the Bureau from the build environment | Refused by the environment's own network policy |
+| 20 Nov 2026 | `download.bls.gov` flat files, after the hosts were allowed | HTTP 403 "Access Denied": automated clients must identify themselves with a contact address. Not worked around |
+| 20 Nov 2026 | `api.bls.gov`, unregistered, one request on each API version | HTTP 200 with `REQUEST_NOT_PROCESSED`: the shared address's daily allowance was already spent. The response is kept as a test fixture (`test/fixtures/oews_quota_refusal.json`) and the importer refuses it |
+
+What remains is two steps for someone with a registration key: run the command above,
+and commit the generated file. The first run is also the first time the importer meets a
+successful live response; its reading of the API's shape is tested against a fixture
+written from the API's documentation, so check the generated figures for a few
+occupations against the Bureau's website before committing.
+
+The SOC codes in the catalogue were entered from memory by an AI assistant and have not
+been checked against the Bureau's list. `--occupation-table` exists to do exactly that;
+do not skip it on the first import.

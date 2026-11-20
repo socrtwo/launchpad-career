@@ -44,7 +44,10 @@ audited or reviewed. Progress claims in the interface must match this document.
         (`docs/product/labour-market-data.md`)
   - [x] Attribution, reference period, spread and staleness rendering
   - [ ] A snapshot actually imported from the publisher. Until then the interface says
-        pay figures are not loaded and shows no numbers.
+        pay figures are not loaded and shows no numbers. Attempted on 19 and 20 November
+        2026 and refused each time (network policy, then the publisher's bot policy and
+        its unregistered daily allowance). It needs a free registration key and one
+        command; see the status table in `docs/product/labour-market-data.md`.
 
 Occupation descriptions and plan steps are AI-assisted drafts, labelled as such in the
 interface, and await review by a careers adviser (`docs/product/content-review.md`).

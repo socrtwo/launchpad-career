@@ -4,6 +4,12 @@
 //
 //   dart run tool/import_oews.dart
 //       Fetch from the API (about five unregistered requests).
+//   BLS_API_KEY=... dart run tool/import_oews.dart
+//       Fetch with a registration key. Unregistered requests share a small
+//       daily allowance per network address, so they are often refused; a key
+//       is free from https://data.bls.gov/registrationEngine/. The key is read
+//       from the environment only, never from the command line, and is never
+//       printed or written to a saved response.
 //   dart run tool/import_oews.dart --save-responses=DIR
 //       Also keep the raw responses, so the import can be repeated and audited.
 //   dart run tool/import_oews.dart --from-dir=DIR
@@ -69,7 +75,10 @@ Future<void> main(List<String> arguments) async {
   } else {
     final client = HttpClient()..userAgent = 'launchpad-career-importer';
     try {
-      final bodies = OewsImporter.requestBodies(codes);
+      final bodies = OewsImporter.requestBodies(
+        codes,
+        registrationKey: Platform.environment['BLS_API_KEY'],
+      );
       for (final (index, body) in bodies.indexed) {
         final request = await client.postUrl(Uri.parse(OewsImporter.apiUrl));
         request.headers.contentType = ContentType.json;

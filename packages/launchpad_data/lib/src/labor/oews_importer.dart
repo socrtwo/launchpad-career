@@ -38,6 +38,10 @@ abstract final class OewsImporter {
   /// The most series the API accepts in one unregistered request.
   static const int seriesPerRequest = 25;
 
+  /// The most series the API accepts in one request made with a registration
+  /// key.
+  static const int seriesPerRegisteredRequest = 50;
+
   /// National, cross-industry series for one occupation and data type:
   /// `OE` + `U` (not seasonally adjusted) + `N` (national) + seven-digit area
   /// + six-digit industry + six-digit occupation + two-digit data type.
@@ -57,12 +61,25 @@ abstract final class OewsImporter {
       ];
 
   /// [seriesFor] split into request bodies the API will accept.
-  static List<Map<String, Object?>> requestBodies(Iterable<String> socCodes) {
+  ///
+  /// The Bureau gives unregistered callers a small daily allowance that is
+  /// counted per network address, so on a shared address it is often already
+  /// spent. A free registration key lifts it. When [registrationKey] is given
+  /// it goes in the request body, which is where the API reads it from; it is
+  /// never part of a response, so saved responses do not contain it.
+  static List<Map<String, Object?>> requestBodies(
+    Iterable<String> socCodes, {
+    String? registrationKey,
+  }) {
     final all = seriesFor(socCodes);
+    final key = registrationKey?.trim();
+    final hasKey = key != null && key.isNotEmpty;
+    final size = hasKey ? seriesPerRegisteredRequest : seriesPerRequest;
     return <Map<String, Object?>>[
-      for (var i = 0; i < all.length; i += seriesPerRequest)
+      for (var i = 0; i < all.length; i += size)
         <String, Object?>{
-          'seriesid': all.skip(i).take(seriesPerRequest).toList(),
+          'seriesid': all.skip(i).take(size).toList(),
+          if (hasKey) 'registrationkey': key,
         },
     ];
   }

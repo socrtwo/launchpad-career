@@ -213,9 +213,10 @@ in bulk with `tool/create_issues.sh` (requires the `gh` CLI).
 - The occupation catalogue is small (under thirty occupations). Its text, and the guidance
   in every tool, is an AI-assisted draft, labelled as such, not yet reviewed by a careers
   adviser.
-- No pay or employment figures are bundled yet. The importer exists
-  (`docs/product/labour-market-data.md`); until it has been run the interface shows no
-  numbers.
+- No pay or employment figures are bundled yet. The importer exists and has been tried,
+  but the publisher refused the unregistered requests; it needs a free registration key
+  and one command (`docs/product/labour-market-data.md`). Until then the interface shows
+  no numbers.
 - Suggestions are produced by fixed rules from the person's answers, not by a model.
 - Accounts exist only in a build made with `--dart-define=LAUNCHPAD_API_URL=https://…`
   pointing at a running `services/launchpad_server`. That server is not deployed by this
