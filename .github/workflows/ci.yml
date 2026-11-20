@@ -31,7 +31,7 @@ jobs:
         run: ./tool/dev.sh get
 
       - name: Check formatting
-        run: dart format --output=none --set-exit-if-changed apps packages
+        run: dart format --output=none --set-exit-if-changed apps packages services
 
       - name: Analyze
         run: ./tool/dev.sh analyze
@@ -52,8 +52,23 @@ jobs:
           cache: true
       - run: flutter pub get
         working-directory: apps/launchpad_app
-      - run: flutter build web --release
-        working-directory: apps/launchpad_app
+      # The release build: CanvasKit served locally, a content security
+      # policy, and no code generation at run time.
+      - run: ./tool/build_web.sh
+
+      # Loads that build in a real browser and fails if anything is requested
+      # from another origin. This is the evidence for the statement that the
+      # default web build makes no third-party requests.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install the audit browser
+        working-directory: tool/web_audit
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Audit network requests
+        run: node tool/web_audit/audit.cjs
       - uses: actions/upload-artifact@v4
         with:
           name: web-build

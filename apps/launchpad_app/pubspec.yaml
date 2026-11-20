@@ -14,7 +14,9 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^3.4.2
   go_router: ^17.4.0
+  http: ^1.2.2
   cupertino_icons: ^1.0.8
+  shared_preferences: ^2.5.3
   launchpad_core:
     path: ../../packages/launchpad_core
   launchpad_data:
@@ -29,7 +31,23 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
+  shared_preferences_platform_interface: ^2.4.1
   flutter_lints: ">=5.0.0 <7.0.0"
 
 flutter:
   uses-material-design: true
+
+  # Bundled, and registered under exactly the name "Roboto". Flutter's web
+  # engine downloads Roboto from fonts.gstatic.com unless the app's own font
+  # list contains a family with that name, and a download discloses the
+  # visitor's network address to a third party. Licensed under the Apache
+  # License 2.0; see fonts/LICENSE.txt. Checked by tool/web_audit/audit.cjs.
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: fonts/Roboto-Regular.ttf
+          weight: 400
+        - asset: fonts/Roboto-Medium.ttf
+          weight: 500
+        - asset: fonts/Roboto-Bold.ttf
+          weight: 700

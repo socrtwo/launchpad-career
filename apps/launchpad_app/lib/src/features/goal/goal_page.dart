@@ -5,9 +5,11 @@ import 'package:launchpad_core/launchpad_core.dart';
 import 'package:launchpad_domain/launchpad_domain.dart';
 import 'package:launchpad_ui/launchpad_ui.dart';
 
+import '../../app/app_page.dart';
 import '../../app/providers.dart';
 import '../../l10n/app_strings.dart';
 import '../../routing/app_router.dart';
+import 'goal_tools.dart';
 
 /// Placeholder destination for a selected goal.
 ///
@@ -30,7 +32,7 @@ class GoalPage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Text('That goal link is not one we recognise.'),
+            Text(strings.goalLinkUnknown),
             const SizedBox(height: Spacing.md),
             FilledButton(
               onPressed: () => context.go(Routes.home),
@@ -59,6 +61,7 @@ class GoalPage extends ConsumerWidget {
             child: Text(strings.goalsUnavailable),
           );
         }
+        final tools = toolsFor(goal.id, strings);
         return _GoalScaffold(
           title: goal.title,
           child: Column(
@@ -77,25 +80,44 @@ class GoalPage extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: Spacing.lg),
-              _NoticeCard(text: strings.phaseOneNotice),
-              const SizedBox(height: Spacing.lg),
               Semantics(
                 header: true,
                 child: Text(
-                  strings.whatHappensNext,
+                  strings.goalToolsHeading,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ),
-              const SizedBox(height: Spacing.xs),
-              Text(
-                goal.nextStep,
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
+              const SizedBox(height: Spacing.sm),
+              for (final tool in tools)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: Spacing.sm),
+                  child: SecondaryChoiceTile(
+                    title: tool.title,
+                    description: tool.description,
+                    icon: tool.icon,
+                    onPressed: () => context.go(tool.location),
+                  ),
+                ),
               const SizedBox(height: Spacing.xl),
-              OutlinedButton.icon(
-                onPressed: () => context.go(Routes.home),
-                icon: const Icon(Icons.arrow_back),
-                label: Text(strings.backToStart),
+              Wrap(
+                spacing: Spacing.sm,
+                runSpacing: Spacing.xs,
+                children: <Widget>[
+                  OutlinedButton.icon(
+                    onPressed: () => context.go(Routes.home),
+                    icon: const Icon(Icons.arrow_back),
+                    label: Text(strings.backToStart),
+                  ),
+                  OutlinedButton(
+                    onPressed: () =>
+                        context.go(Routes.onboarding(OnboardingStep.review)),
+                    child: Text(strings.yourAnswers),
+                  ),
+                  OutlinedButton(
+                    onPressed: () => context.go(Routes.tools),
+                    child: Text(strings.toolsTitle),
+                  ),
+                ],
               ),
             ],
           ),
@@ -112,49 +134,6 @@ class _GoalScaffold extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppStrings.of(context).appName),
-        leading: IconButton(
-          onPressed: () => context.go(Routes.home),
-          icon: const Icon(Icons.arrow_back),
-          tooltip: AppStrings.of(context).backToStart,
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(child: ContentColumn(child: child)),
-      ),
-    );
-  }
-}
-
-class _NoticeCard extends StatelessWidget {
-  const _NoticeCard({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(Spacing.md),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(Radii.card),
-        border: Border.all(color: scheme.outlineVariant),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Icon(Icons.info_outline, size: 20, color: scheme.onSurfaceVariant),
-          const SizedBox(width: Spacing.sm),
-          Expanded(
-            child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      AppPage(maxWidth: Breakpoints.maxContentWidth, child: child);
 }

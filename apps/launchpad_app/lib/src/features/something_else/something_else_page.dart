@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launchpad_core/launchpad_core.dart';
 import 'package:launchpad_ui/launchpad_ui.dart';
 
+import '../../app/providers.dart';
 import '../../l10n/app_strings.dart';
 import '../../routing/app_router.dart';
 
@@ -11,14 +13,14 @@ import '../../routing/app_router.dart';
 /// Rules this screen exists to honour: do not label the user, do not treat "I
 /// am not sure" as a symptom, do not ask for identity before help, and say
 /// plainly where the text goes.
-class SomethingElsePage extends StatefulWidget {
+class SomethingElsePage extends ConsumerStatefulWidget {
   const SomethingElsePage({super.key});
 
   @override
-  State<SomethingElsePage> createState() => _SomethingElsePageState();
+  ConsumerState<SomethingElsePage> createState() => _SomethingElsePageState();
 }
 
-class _SomethingElsePageState extends State<SomethingElsePage> {
+class _SomethingElsePageState extends ConsumerState<SomethingElsePage> {
   final TextEditingController _controller = TextEditingController();
   bool _submitted = false;
 
@@ -113,7 +115,14 @@ class _SomethingElsePageState extends State<SomethingElsePage> {
                   child: FilledButton(
                     onPressed: _controller.text.trim().isEmpty
                         ? null
-                        : () => setState(() => _submitted = true),
+                        : () {
+                            // Held in memory for this session only; the data
+                            // layer never writes this field to storage.
+                            ref
+                                .read(sessionProvider.notifier)
+                                .setFreeText(_controller.text);
+                            setState(() => _submitted = true);
+                          },
                     child: Text(strings.submitLabel),
                   ),
                 ),

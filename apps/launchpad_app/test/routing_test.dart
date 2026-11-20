@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:launchpad_app/src/features/goal/goal_page.dart';
 import 'package:launchpad_app/src/features/info/info_pages.dart';
+import 'package:launchpad_app/src/features/onboarding/onboarding_page.dart';
 import 'package:launchpad_app/src/features/something_else/something_else_page.dart';
 import 'package:launchpad_app/src/routing/app_router.dart';
 import 'package:launchpad_domain/launchpad_domain.dart';
@@ -9,17 +10,19 @@ import 'package:launchpad_domain/launchpad_domain.dart';
 import 'helpers.dart';
 
 void main() {
-  testWidgets('Continue navigates to the selected goal', (tester) async {
+  testWidgets('Continue leads to the selected goal, questions optional',
+      (tester) async {
     await pumpApp(tester);
 
-    await tester.tap(find.text('Help me find an internship or job'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Continue'));
-    await tester.pumpAndSettle();
+    await chooseGoalAndContinue(tester);
+    expect(find.byType(OnboardingPage), findsOneWidget);
+
+    await tapVisible(tester, find.text('Skip the questions'));
 
     expect(find.byType(GoalPage), findsOneWidget);
     expect(find.text('Help me find an internship or job'), findsWidgets);
-    expect(find.text('What happens next'), findsOneWidget);
+    expect(find.text('Start here'), findsOneWidget);
+    expect(find.text('Weekly job-search plan'), findsOneWidget);
   });
 
   testWidgets('Something else opens the open-text flow', (tester) async {
@@ -85,5 +88,37 @@ void main() {
     );
     expect(GoalId.fromSlug('nonsense'), isNull);
     expect(Routes.goalFor(GoalId.direction), '/goal?id=direction');
+  });
+
+  test('resume goes to the question in progress, then the goal', () {
+    expect(Routes.resume(const Session()), isNull);
+    expect(
+      Routes.resume(
+        const Session(
+          selectedGoal: GoalId.direction,
+          onboardingStatus: OnboardingStatus.inProgress,
+          onboardingStep: OnboardingStep.plans,
+        ),
+      ),
+      '/onboarding/plans',
+    );
+    expect(
+      Routes.resume(
+        const Session(
+          selectedGoal: GoalId.direction,
+          onboardingStatus: OnboardingStatus.skipped,
+        ),
+      ),
+      '/goal?id=direction',
+    );
+    expect(
+      Routes.resume(
+        Session(
+          profile: const Profile().copyWith(preferredName: 'Sam'),
+          onboardingStatus: OnboardingStatus.completed,
+        ),
+      ),
+      '/onboarding/review',
+    );
   });
 }
