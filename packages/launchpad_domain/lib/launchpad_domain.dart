@@ -6,8 +6,20 @@
 /// lives in `launchpad_data`.
 library;
 
+export 'src/entities/account.dart';
 export 'src/entities/goal.dart';
 export 'src/entities/evidence.dart';
+export 'src/entities/occupation.dart';
+export 'src/entities/onboarding.dart';
+export 'src/entities/profile.dart';
 export 'src/entities/session.dart';
+export 'src/entities/tools.dart';
+export 'src/entities/workspace.dart';
+export 'src/repositories/account_repository.dart';
 export 'src/repositories/goal_catalog_repository.dart';
+export 'src/repositories/guidance_repository.dart';
+export 'src/repositories/local_data_repository.dart';
+export 'src/repositories/occupation_catalog_repository.dart';
 export 'src/repositories/session_repository.dart';
+export 'src/services/recommender.dart';
+export 'src/services/resume_bullet_check.dart';

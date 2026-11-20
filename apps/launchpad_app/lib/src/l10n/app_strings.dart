@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'account_strings.dart';
+import 'data_strings.dart';
+import 'explore_strings.dart';
+import 'onboarding_strings.dart';
+import 'tools_strings.dart';
+
 /// Hand-written localisation table.
 ///
 /// Why not `gen_l10n`/ARB yet: codegen adds a build step to every checkout for
@@ -9,7 +15,13 @@ import 'package:flutter/material.dart';
 /// intentionally *not* here - they come from the catalogue repository, because
 /// they are editorial content destined for a CMS.
 @immutable
-class AppStrings {
+class AppStrings
+    with
+        OnboardingStrings,
+        DataStrings,
+        ExploreStrings,
+        ToolsStrings,
+        AccountStrings {
   const AppStrings();
 
   static const AppStrings en = AppStrings();
@@ -51,11 +63,21 @@ class AppStrings {
 
   String get backToStart => 'Back to start';
 
-  String get whatHappensNext => 'What happens next';
+  String get goalToolsHeading => 'Start here';
 
-  String get phaseOneNotice =>
-      'This build is an early preview. The flow below is described, not yet '
-      'implemented.';
+  String get goalLinkUnknown => 'That goal link is not one we recognise.';
+
+  String get pageNotFoundTitle => 'Page not found';
+
+  String get pageNotFoundBody => 'That page does not exist.';
+
+  String get goToStart => 'Go to the start';
+
+  String get footerAbout => 'About';
+
+  String get footerPrivacy => 'Privacy';
+
+  String get footerAccessibility => 'Accessibility';
 
   String get somethingElsePrompt => 'What is on your mind?';
 
@@ -66,8 +88,8 @@ class AppStrings {
       'making the decision hard.';
 
   String get somethingElsePrivacyNote =>
-      'What you type stays on this device in this preview build. Nothing is '
-      'sent anywhere, and you do not need an account.';
+      'What you type stays on this device until you close the app. It is not '
+      'sent to us and it is never saved, and you do not need an account.';
 
   String get submitLabel => 'Send';
 
@@ -86,15 +108,21 @@ class AppStrings {
   String get privacyTitle => 'Privacy';
 
   String get privacyBody =>
-      'Placeholder. Before release this page must carry the reviewed privacy '
-      'notice, the terms of use, and controls for consent, data export, and '
-      'account deletion.';
+      'This is not yet a reviewed privacy notice; one must be published before '
+      'release. What is true of this build: there are no accounts, what you '
+      'enter stays on this device, nothing is saved unless you choose it, and '
+      'you can see or delete it at any time under Your data.';
 
   String get accessibilityTitle => 'Accessibility';
 
   String get accessibilityBody =>
-      'Placeholder for the published accessibility statement. Current targets '
-      'and known gaps are listed in docs/accessibility/accessibility-requirements.md.';
+      'This is not yet an accessibility statement, and no conformance is '
+      'claimed. Every screen is built and automatically tested for keyboard '
+      'use, screen-reader labels, text contrast in light and dark, touch '
+      'target size, text at twice the normal size, and reduced motion. It has '
+      'not yet been audited by people who use assistive technology every day. '
+      'One known gap in the web version: text you type in scripts other than '
+      'Latin, Greek and Cyrillic is drawn as empty boxes.';
 
   String get noGuarantee =>
       'Launchpad Career offers guidance, not guarantees about admission, hiring, '
