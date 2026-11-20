@@ -1,0 +1,17 @@
+name: launchpad_server
+description: Optional account and sync server for Launchpad Career - accounts, consent, profile sync, export and catalogue publishing.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  crypto: ^3.0.6
+  meta: ^1.16.0
+  shelf: ^1.4.2
+  shelf_router: ^1.1.4
+
+dev_dependencies:
+  lints: ^5.0.0
+  test: ^1.25.0

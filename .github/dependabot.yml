@@ -31,6 +31,18 @@ updates:
       interval: "monthly"
     labels: ["dependencies"]
 
+  - package-ecosystem: "pub"
+    directory: "/services/launchpad_server"
+    schedule:
+      interval: "weekly"
+    labels: ["dependencies"]
+
+  - package-ecosystem: "npm"
+    directory: "/tool/web_audit"
+    schedule:
+      interval: "monthly"
+    labels: ["dependencies", "ci"]
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

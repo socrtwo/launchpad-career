@@ -2,20 +2,47 @@
 
 ## Position
 
-Data minimisation is a design constraint, not a later feature. The product currently
-collects nothing, stores nothing durably, and transmits nothing. Everything below describes
-how that is kept true as features arrive.
+Data minimisation is a design constraint, not a later feature. The product collects
+nothing by default, stores nothing durably unless the person opts in, and transmits
+nothing they enter. Everything below describes how that is kept true as features arrive.
 
-## Current state (Phase 1)
+## Current state (Phase 5)
 
-- No account, no name, no email, no device identifier.
-- `Session` holds an optional preferred name and the free text typed into "Something else",
-  both in memory only, both cleared when the process ends.
-- `InMemorySessionRepository` is deliberately not backed by `shared_preferences` or a
-  database. Nothing the user types survives a restart until there is a consent flow and a
-  documented retention policy.
+- No email, no device identifier. Accounts are optional and exist only in a build made
+  with an account service address; the default build has none and makes no requests.
+- An account is a handle and a passphrase. Signing in sends nothing but those. Sync is a
+  separate, explicit opt-in recorded on the service, and a copy is sent only when "Sync
+  now" is pressed. Turning sync off deletes the copy. The app shows what the service
+  holds and deletes the account on request. See [`retention.md`](retention.md).
+- `Session` holds the chosen goal, an optional `Profile` (preferred name, education so
+  far, planned education, interests, priorities), the onboarding step reached, and the
+  free text typed into "Something else". All of it is optional and all of it is something
+  the person chose or typed; nothing is inferred.
+- Everything lives in memory until the person presses **Save on this device**.
+  `PersistentSessionRepository` then mirrors the session to the platform preference store
+  (browser local storage on the web). The free text is never written, opt-in or not.
+- The opt-in, the twelve-month expiry, export and deletion are specified in
+  [`retention.md`](retention.md) and enforced by tests in `packages/launchpad_data/test`
+  and `apps/launchpad_app/test/your_data_test.dart`.
+- Every question states why it is asked next to the question, and every one can be
+  skipped.
+- The session also holds a `Workspace`: saved occupations, plans, and steps marked done.
+  Steps a person writes themselves are free text and are treated like the rest of the
+  session: memory until opt-in, then the device store, covered by export and deletion.
+- The employment tools add checklists, self-ratings and notes to the `Workspace`. Notes
+  are free text and follow the same rule as everything else. The tools never ask for a
+  résumé or a profile: a person works on their own documents with the guide beside them.
+  A résumé line typed into the wording check is examined on the device and forgotten
+  unless the person presses "Keep this line". Nothing connects to LinkedIn.
+- Searching the catalogue happens on the device against bundled data. The query is not
+  stored and nothing is requested from a server. Labour-market figures are compiled into
+  the app for the same reason: reading about an occupation discloses nothing.
+- Suggestions read interests, education and priorities only. They take no name, age,
+  location or institution; a test pins that the preferred name cannot change the result.
 - No analytics, advertising, attribution, or crash-reporting SDK is in the dependency tree.
-  Check with `flutter pub deps` before adding anything.
+  Check with `flutter pub deps` before adding anything. The only plugin is
+  `shared_preferences`.
+- Nothing logs. A failed write is reported to the person on screen and nowhere else.
 
 ## Rules for future work
 
@@ -38,13 +65,16 @@ how that is kept true as features arrive.
 
 | Item | Where | Status |
 | --- | --- | --- |
-| Privacy notice | `/privacy` route | placeholder text |
+| Privacy notice | `/privacy` route | describes this build; not a reviewed notice |
 | Terms of use | not built | missing |
-| Consent management | not built | missing |
-| Account deletion | not built | missing |
-| Data export | not built | missing |
-| Retention schedule | not written | missing |
-| Sub-processor list | not written | missing |
+| Consent for local storage | `/your-data`, onboarding review | built |
+| Local data export | `/your-data` | built (on screen and to the clipboard) |
+| Local data deletion | `/your-data` | built |
+| Retention schedule | `docs/privacy/retention.md` | written for local data |
+| Consent for sync | `/account` | built |
+| Account data export | `/account` | built |
+| Account deletion | `/account` | built |
+| Sub-processor list | nothing is deployed, so there are none | to be written by whoever deploys the service |
 
 ## No compliance claims
 
@@ -56,11 +86,19 @@ undergraduates will be used by some people under 18 — both need review before 
 
 ## Known technical leak paths
 
-- **Web fonts.** Flutter's CanvasKit renderer can fetch fallback fonts from Google-hosted
-  URLs at runtime, which discloses the user's IP to a third party. Self-host CanvasKit
-  (`--web-renderer` configuration and `FLUTTER_WEB_CANVASKIT_URL`) before making any "no
-  third-party requests" claim. Icon and Material fonts are already bundled.
+- **Web fonts and the renderer: closed for the default build.** A stock Flutter web build
+  downloads CanvasKit and Roboto from Google-hosted addresses and reaches for more fonts
+  when it meets a character it cannot draw. The release build
+  (`tool/build_web.sh`) serves all of it from its own origin, and
+  `tool/web_audit/audit.cjs` proves it with a browser network trace on every pull request.
+  The cost is that typed text in scripts outside Latin, Greek and Cyrillic is drawn as
+  empty boxes on the web. See `docs/release/web-hosting.md`, including what may and may
+  not be claimed.
+- **The landing page** (`docs/index.html`) is not the app. It loads the README from
+  GitHub's API, so visiting it discloses the visitor's address to GitHub.
 - **Store and platform telemetry** is outside the app's control; document it rather than
   claim it away.
+- **Hosting logs.** Whoever serves the web build or the account server sees network
+  addresses. The app cannot prevent that and does not claim to.
 - **CI artefacts.** Build artefacts uploaded by workflows must never include user data;
   they currently include only compiled output.

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Opens one tracking issue per roadmap area, using the GitHub CLI.
+# Opens one tracking issue for each thing still open in docs/product/roadmap.md,
+# using the GitHub CLI. Keep this list in step with the roadmap: an issue for
+# work that is already done is worse than no issue.
 #
 #   gh auth login
 #   ./tool/create_issues.sh              # dry run, prints what it would create
@@ -24,55 +26,43 @@ create() {
 }
 
 if $APPLY; then
-  for label in phase-2 phase-3 phase-4 phase-5 phase-6 accessibility privacy epic; do
+  for label in phase-3 phase-6 accessibility privacy security content needs-people; do
     gh label create "$label" --force >/dev/null 2>&1 || true
   done
 fi
 
-create "Phase 2: Onboarding" "epic,phase-2" \
-"Preferred name (optional), current education level, planned education, primary goal carried forward, interests and priorities, anonymous session support.
+create "Import labour-market figures from the Bureau of Labor Statistics" "phase-3" \
+"Register a free BLS API key, then run packages/launchpad_data/tool/import_oews.dart with BLS_API_KEY set, --save-responses and --occupation-table, check a few figures against the Bureau website, and commit the generated snapshot. Unregistered attempts were refused on 20 Nov 2026. Until then the interface shows no pay figures and says so. See docs/product/labour-market-data.md."
 
-Constraint: nothing is stored durably until consent and a retention policy exist. See docs/privacy/privacy-design.md.
-Roadmap: docs/product/roadmap.md"
+create "Editorial review of draft occupation and guidance content" "content,needs-people" \
+"Every occupation description, plan step and tool guide is an AI-assisted draft and is labelled as one. A careers adviser needs to review each against primary sources before it is relabelled. See docs/product/content-review.md."
 
-create "Phase 3: Career exploration" "epic,phase-3" \
-"Occupation search and browse, comparison view, explainable recommendations, saved options, action plans.
+create "Accessibility audit with assistive technology users" "accessibility,phase-6,needs-people" \
+"Not done. Brief, tasks and known risks: docs/release/accessibility-audit-brief.md. No conformance claim may be published before this closes."
 
-Every displayed claim must carry Evidence provenance. See docs/product/career-recommendation-principles.md."
+create "Legal and privacy review; privacy notice and terms of use" "privacy,phase-6,needs-people" \
+"Not done. Data inventory and open questions: docs/release/legal-review-brief.md. No compliance claim before this closes."
 
-create "Phase 4: Employment tools" "epic,phase-4" \
-"Internship and job-search planning, resume guidance, LinkedIn guidance, interview practice, skill-gap planning, progress tracking."
+create "Independent security review of the account server and client" "security,phase-6,needs-people" \
+"Not done. The internal review and fourteen known weaknesses are in docs/release/security-review.md. Needed before the server is deployed anywhere."
 
-create "Phase 5: Backend and accounts" "epic,phase-5" \
-"Authentication, secure profiles, synchronisation, consent management, export, deletion, content management.
+create "Host fallback fonts so non-Latin text renders on the web" "accessibility,phase-6" \
+"The web build fetches no fonts from a third party, so typed text outside Latin, Greek and Cyrillic is drawn as empty boxes. Serve the Noto families under fallback-fonts/ on the same origin. See docs/release/web-hosting.md."
 
-Anonymous use must remain fully functional. Sign-in is never a gate on exploration."
+create "First signed release: set up the release environment and run release.yml" "phase-6,needs-people" \
+"release.yml has never been run. Needs an upload key, the release environment and its secrets, and store accounts. iOS, macOS and Windows signing are not scripted. See docs/release/release-process.md."
 
-create "Phase 6: Production releases" "epic,phase-6" \
-"Performance and security review, accessibility audit, legal and privacy review, store preparation, signed builds, web deployment, monitoring.
+create "Deploy the web build on a host that can set security headers" "phase-6,needs-people" \
+"deploy-web.yml targets GitHub Pages and has never been run (the Pages source must be switched to GitHub Actions first). Pages cannot set headers; see the header table in docs/release/web-hosting.md."
 
-Signed release workflows live separately from the unsigned verification in ci.yml."
+create "Replace the SECURITY.md placeholder with a monitored address" "security,needs-people" \
+"The reporting address is still a placeholder. Needed before anything is deployed."
 
-create "Labour-market data source and attribution" "phase-3" \
-"Select a data source, implement the Evidence pipeline, and render source plus as-of date everywhere a figure appears. Define the staleness threshold."
+create "Replace the string table with ARB localisation" "phase-6" \
+"Migrate lib/src/l10n/ to gen_l10n/ARB and add a second locale to prove the plumbing. Catalogue and guidance content needs the same treatment through the published-catalogue route."
 
-create "Replace the string table with ARB localisation" "phase-2" \
-"Migrate lib/src/l10n/app_strings.dart to gen_l10n/ARB and add a second locale to prove the plumbing."
-
-create "Accessibility audit with assistive technology users" "accessibility,phase-6" \
-"Manual audit against docs/accessibility/accessibility-requirements.md, including the manual checklist and forced-colours mode on web. No conformance claim may be published before this closes."
-
-create "Privacy notice, terms, consent, export and deletion" "privacy,phase-5" \
-"Replace the /privacy placeholder with reviewed content and build the four missing controls. No compliance claim before legal review."
-
-create "Self-host CanvasKit and audit runtime network requests" "privacy,phase-6" \
-"Flutter web may fetch fallback fonts from Google-hosted URLs at runtime. Self-host and verify with a network trace before any 'no third-party requests' claim."
-
-create "Persist session state locally, behind consent" "phase-2" \
-"Replace InMemorySessionRepository with a local store. Requires a consent flow, a retention policy, and a working delete."
-
-create "Screenshots and store-listing assets" "phase-6" \
-"Populate docs/product/screenshots/ and the README screenshot table for phone, tablet and desktop, in both themes."
+create "Native screenshots and store submission" "phase-6,needs-people" \
+"Web screenshots exist in docs/product/screenshots/. Native captures, store accounts and submission are open. Draft listing: docs/release/store-listing.md."
 
 $APPLY || echo
 $APPLY || echo "Dry run. Re-run with --apply to create these."
