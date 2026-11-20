@@ -1,0 +1,37 @@
+{
+  "status": "REQUEST_SUCCEEDED",
+  "responseTime": 120,
+  "message": [],
+  "Results": {
+    "series": [
+      {"seriesID": "OEUN000000000000000000013", "data": [
+        {"year": "2023", "period": "A01", "periodName": "Annual", "value": "48060", "footnotes": [{}]},
+        {"year": "2024", "period": "A01", "periodName": "Annual", "latest": "true", "value": "49500", "footnotes": [{}]}
+      ]},
+      {"seriesID": "OEUN000000000000011111101", "data": [
+        {"year": "2024", "period": "A01", "periodName": "Annual", "value": "1,534,790", "footnotes": [{}]}
+      ]},
+      {"seriesID": "OEUN000000000000011111111", "data": [
+        {"year": "2024", "period": "A01", "periodName": "Annual", "value": "61000", "footnotes": [{}]}
+      ]},
+      {"seriesID": "OEUN000000000000011111113", "data": [
+        {"year": "2024", "period": "A01", "periodName": "Annual", "value": "98765", "footnotes": [{}]}
+      ]},
+      {"seriesID": "OEUN000000000000011111115", "data": [
+        {"year": "2024", "period": "A01", "periodName": "Annual", "value": "-", "footnotes": [{"code": "5", "text": "This wage is equal to or greater than $239,200 per year."}]}
+      ]},
+      {"seriesID": "OEUN000000000000022222201", "data": [
+        {"year": "2024", "period": "A01", "periodName": "Annual", "value": "12340", "footnotes": [{}]}
+      ]},
+      {"seriesID": "OEUN000000000000022222211", "data": [
+        {"year": "2024", "period": "A01", "periodName": "Annual", "value": "30000", "footnotes": [{}]}
+      ]},
+      {"seriesID": "OEUN000000000000022222213", "data": [
+        {"year": "2024", "period": "A01", "periodName": "Annual", "value": "41000", "footnotes": [{}]}
+      ]},
+      {"seriesID": "OEUN000000000000022222215", "data": [
+        {"year": "2024", "period": "A01", "periodName": "Annual", "value": "52000", "footnotes": [{}]}
+      ]}
+    ]
+  }
+}

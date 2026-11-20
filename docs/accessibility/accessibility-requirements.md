@@ -18,6 +18,20 @@ requirements the code is written and tested against.
 | Reduce-motion produces no animation | `accessibility_test.dart` |
 | Layout survives 2× text scale without overflow | `home_page_test.dart` |
 | One / two / three columns at phone / tablet / desktop | `responsive_test.dart` |
+| Every onboarding question and the data page meet contrast, target-size and labelling guidelines in both themes | `onboarding_test.dart`, `your_data_test.dart` |
+| Every onboarding question survives 2× text on a 360dp-wide phone | `onboarding_test.dart` |
+| Answers are reachable by Tab and activated by Space; single-choice answers are announced as a group, choose-any answers as checkboxes | `onboarding_test.dart`, `packages/launchpad_ui/test/option_tile_test.dart` |
+| Progress is given in words ("Step 2 of 6"), not only as a bar | `onboarding_test.dart` |
+| Browse, occupation, compare, saved, suggestions and plan pages meet contrast, target-size and labelling guidelines in both themes, and survive 2× text on a 360dp-wide phone | `explore_test.dart` |
+| Comparison is side by side on wide windows and stacked on a phone, with the occupation named in every cell | `explore_test.dart` |
+| Repeated controls say what they act on ("Save Electrician", "View details: Electrician") | `explore_test.dart` |
+| Confidence is given in words; no percentage appears on the suggestions page | `explore_test.dart` |
+| Every tool page meets contrast, target-size and labelling guidelines in both themes, and survives 2× text on a 360dp-wide phone | `tools_test.dart` |
+| Progress is given in words on every row; bars are hidden from assistive technology | `tools_test.dart` |
+| Skill ratings are announced with the skill they rate ("Not yet: Fault finding") as one of a group | `skills_page.dart`, guideline matchers in `tools_test.dart` |
+| Interview question tiles announce what they open and whether it has been practised | `tools_test.dart` |
+| The account page meets contrast, target-size and labelling guidelines signed out, signed in and with a sync conflict, in both themes and at 2× text | `account_test.dart` |
+| The passphrase field is hidden by default with a labelled show/hide control | `account_test.dart` |
 
 ## Design rules
 

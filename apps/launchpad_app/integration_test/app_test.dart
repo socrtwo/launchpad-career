@@ -15,8 +15,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Skip the questions'));
+    await tester.tap(find.text('Skip the questions'));
+    await tester.pumpAndSettle();
 
     expect(find.byType(GoalPage), findsOneWidget);
-    expect(find.text('What happens next'), findsOneWidget);
+    expect(find.text('Start here'), findsOneWidget);
   });
 }

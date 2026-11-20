@@ -33,3 +33,7 @@ key.properties
 .env.*
 google-services.json
 GoogleService-Info.plist
+
+# Tooling for the web network audit
+tool/web_audit/node_modules/
+tool/web_audit/package-lock.json

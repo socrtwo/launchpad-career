@@ -22,7 +22,14 @@ class PrivacyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = AppStrings.of(context);
-    return InfoScaffold(title: strings.privacyTitle, body: strings.privacyBody);
+    return InfoScaffold(
+      title: strings.privacyTitle,
+      body: strings.privacyBody,
+      action: FilledButton.tonal(
+        onPressed: () => context.go(Routes.yourData),
+        child: Text(strings.yourDataTitle),
+      ),
+    );
   }
 }
 
@@ -40,10 +47,16 @@ class AccessibilityPage extends StatelessWidget {
 }
 
 class InfoScaffold extends StatelessWidget {
-  const InfoScaffold({super.key, required this.title, required this.body});
+  const InfoScaffold({
+    super.key,
+    required this.title,
+    required this.body,
+    this.action,
+  });
 
   final String title;
   final String body;
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +86,10 @@ class InfoScaffold extends StatelessWidget {
                 ),
                 const SizedBox(height: Spacing.md),
                 Text(body, style: Theme.of(context).textTheme.bodyLarge),
+                if (action != null) ...<Widget>[
+                  const SizedBox(height: Spacing.md),
+                  action!,
+                ],
                 const SizedBox(height: Spacing.xl),
                 OutlinedButton.icon(
                   onPressed: () => context.go(Routes.home),
