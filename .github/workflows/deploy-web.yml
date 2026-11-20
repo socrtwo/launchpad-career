@@ -73,7 +73,7 @@ jobs:
           mkdir -p _site/app
           cp docs/index.html docs/.nojekyll _site/
           cp -R apps/launchpad_app/build/web/. _site/app/
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
