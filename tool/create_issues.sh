@@ -32,7 +32,7 @@ if $APPLY; then
 fi
 
 create "Import labour-market figures from the Bureau of Labor Statistics" "phase-3" \
-"Run packages/launchpad_data/tool/import_oews.dart against the publisher, with --save-responses and --occupation-table, and commit the generated snapshot. Until then the interface shows no pay figures and says so. See docs/product/labour-market-data.md."
+"Register a free BLS API key, then run packages/launchpad_data/tool/import_oews.dart with BLS_API_KEY set, --save-responses and --occupation-table, check a few figures against the Bureau website, and commit the generated snapshot. Unregistered attempts were refused on 20 Nov 2026. Until then the interface shows no pay figures and says so. See docs/product/labour-market-data.md."
 
 create "Editorial review of draft occupation and guidance content" "content,needs-people" \
 "Every occupation description, plan step and tool guide is an AI-assisted draft and is labelled as one. A careers adviser needs to review each against primary sources before it is relabelled. See docs/product/content-review.md."

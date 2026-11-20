@@ -301,6 +301,48 @@ void main() {
       );
     });
 
+    test('refuses the quota answer the API really gives', () {
+      // Recorded from api.bls.gov on 20 November 2026: an unregistered
+      // request from a shared address after the daily allowance was spent.
+      // It arrives with HTTP 200, so only the body says nothing was returned.
+      final refusal = (jsonDecode(
+        File('test/fixtures/oews_quota_refusal.json').readAsStringSync(),
+      ) as Map)
+          .cast<String, Object?>();
+      expect(
+        () => OewsImporter.build(
+          socCodes: codes,
+          responses: <Map<String, Object?>>[refusal],
+          retrievedOn: retrieved,
+        ),
+        throwsA(
+          isA<OewsImportException>().having(
+            (error) => error.problems.join(),
+            'problems',
+            allOf(
+                contains('REQUEST_NOT_PROCESSED'), contains('daily threshold')),
+          ),
+        ),
+      );
+    });
+
+    test('a registration key goes in the body and allows larger requests', () {
+      final many = List<String>.generate(28, (i) => '11-${1000 + i}');
+      final bodies = OewsImporter.requestBodies(many, registrationKey: ' k3y ');
+      expect(bodies, hasLength(3));
+      for (final body in bodies) {
+        expect(body['registrationkey'], 'k3y');
+        expect(body['seriesid']! as List, hasLength(lessThanOrEqualTo(50)));
+      }
+      for (final body in OewsImporter.requestBodies(many)) {
+        expect(body.containsKey('registrationkey'), isFalse);
+      }
+      expect(
+        OewsImporter.requestBodies(many, registrationKey: '  ').first,
+        isNot(contains('registrationkey')),
+      );
+    });
+
     test('refuses to mix reference years', () {
       final mixed =
           (jsonDecode(jsonEncode(response)) as Map).cast<String, Object?>();
