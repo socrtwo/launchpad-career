@@ -59,7 +59,7 @@ jobs:
       # Loads that build in a real browser and fails if anything is requested
       # from another origin. This is the evidence for the statement that the
       # default web build makes no third-party requests.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: Install the audit browser
