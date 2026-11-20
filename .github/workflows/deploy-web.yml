@@ -1,0 +1,89 @@
+name: Deploy web
+
+# Publishes the landing page and the web app to GitHub Pages.
+#
+# Manual only. It has never been run: it needs the repository's Pages source
+# set to "GitHub Actions" (Settings -> Pages), which is a choice for the
+# repository owner. Until then it would fail at the deploy step and change
+# nothing. See docs/release/web-hosting.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_href:
+        description: Path the app is served from. Must start and end with "/".
+        required: true
+        default: /launchpad-career/app/
+      api_url:
+        description: Account service address (https://...). Leave empty for a build with no accounts.
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: "3.44.8"
+
+jobs:
+  build:
+    name: Build and audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: ./tool/dev.sh get
+      - run: ./tool/dev.sh ci
+
+      - name: Build
+        env:
+          BASE_HREF: ${{ inputs.base_href }}
+          API_URL: ${{ inputs.api_url }}
+        run: |
+          if [ -n "$API_URL" ]; then
+            ./tool/build_web.sh --base-href="$BASE_HREF" --api-url="$API_URL"
+          else
+            ./tool/build_web.sh --base-href="$BASE_HREF"
+          fi
+
+      # A build with an account service talks to that service by design, so
+      # the "nothing leaves the origin" audit applies only to the default one.
+      - uses: actions/setup-node@v4
+        if: inputs.api_url == ''
+        with:
+          node-version: "22"
+      - name: Audit network requests
+        if: inputs.api_url == ''
+        run: |
+          (cd tool/web_audit && npm install --no-audit --no-fund && npx playwright install --with-deps chromium)
+          node tool/web_audit/audit.cjs
+
+      - name: Assemble the site
+        run: |
+          mkdir -p _site/app
+          cp docs/index.html docs/.nojekyll _site/
+          cp -R apps/launchpad_app/build/web/. _site/app/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

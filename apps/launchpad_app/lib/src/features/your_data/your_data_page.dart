@@ -132,7 +132,6 @@ class _YourDataPageState extends ConsumerState<YourDataPage> {
                 child: SelectableText(
                   _export!,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    fontFamily: 'monospace',
                     color: theme.colorScheme.onSurface,
                   ),
                 ),

@@ -116,8 +116,13 @@ class AppStrings
   String get accessibilityTitle => 'Accessibility';
 
   String get accessibilityBody =>
-      'Placeholder for the published accessibility statement. Current targets '
-      'and known gaps are listed in docs/accessibility/accessibility-requirements.md.';
+      'This is not yet an accessibility statement, and no conformance is '
+      'claimed. Every screen is built and automatically tested for keyboard '
+      'use, screen-reader labels, text contrast in light and dark, touch '
+      'target size, text at twice the normal size, and reduced motion. It has '
+      'not yet been audited by people who use assistive technology every day. '
+      'One known gap in the web version: text you type in scripts other than '
+      'Latin, Greek and Cyrillic is drawn as empty boxes.';
 
   String get noGuarantee =>
       'Launchpad Career offers guidance, not guarantees about admission, hiring, '

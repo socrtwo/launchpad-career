@@ -14,6 +14,12 @@ abstract final class AppTheme {
   /// careers office, and far enough from the usual startup violet.
   static const Color seed = Color(0xFF2C4A7C);
 
+  /// The one typeface. The app bundles it under exactly this family name
+  /// (`apps/launchpad_app/pubspec.yaml`), which is what stops Flutter's web
+  /// engine downloading Roboto from a Google-hosted address at run time.
+  /// See `docs/release/web-hosting.md`.
+  static const String fontFamily = 'Roboto';
+
   static ThemeData light() {
     final scheme = ColorScheme.fromSeed(
       seedColor: seed,
@@ -45,6 +51,7 @@ abstract final class AppTheme {
     final textTheme = _textTheme(scheme);
     return ThemeData(
       useMaterial3: true,
+      fontFamily: fontFamily,
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
       textTheme: textTheme,
@@ -107,7 +114,10 @@ abstract final class AppTheme {
   /// A tight scale. Display sizes are deliberately smaller than the M3 defaults:
   /// this is a screen people read, not a marketing page.
   static TextTheme _textTheme(ColorScheme scheme) {
-    final base = ThemeData(brightness: scheme.brightness).textTheme;
+    final base = ThemeData(
+      brightness: scheme.brightness,
+      fontFamily: fontFamily,
+    ).textTheme;
     return base.copyWith(
       headlineLarge: base.headlineLarge?.copyWith(
         fontSize: 34,

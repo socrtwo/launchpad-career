@@ -9,7 +9,8 @@ A career-planning and employment-guidance tool for undergraduates, graduate stud
 recent graduates, and career changers. It is **not** a mental-health service, diagnostic
 tool, job board, or promise of employment. Phases 1 (foundation), 2 (onboarding, opt-in
 local storage), 3 (career exploration), 4 (employment tools) and 5 (optional accounts and
-sync) are built; `docs/product/roadmap.md` is the
+sync) are built, and Phase 6 (release) is prepared but nothing is released, deployed,
+audited or legally reviewed; `docs/product/roadmap.md` is the
 record of what is and is not done, and the interface must say the same thing honestly
 (`docs/product/roadmap.md`, `docs/product/product-principles.md`).
 
@@ -119,9 +120,12 @@ it that way:
 - **Never log on the server** anything but method, route template, status and duration.
 - **No compliance claims** (FERPA, GDPR, CCPA, COPPA, …) anywhere — interface, README, or
   marketing — until legal and technical review is complete.
-- Known leak path: Flutter's CanvasKit renderer can fetch fallback fonts from
-  Google-hosted URLs at runtime. Self-host CanvasKit before making any "no third-party
-  requests" claim.
+- **The web build must stay free of third-party requests.** Build it with
+  `./tool/build_web.sh` and check it with `node tool/web_audit/audit.cjs` (CI does both).
+  Do not add a font, script, image or API call that leaves the page's origin, and do not
+  rename the bundled `Roboto` family or move it into a package: the engine only skips its
+  Google-hosted download for a family named exactly `Roboto` in the app's own pubspec. The
+  claim is limited as set out in `docs/release/web-hosting.md`.
 - No signing credentials, provisioning profiles, or store secrets in this repository.
 
 ## Accessibility (`docs/accessibility/accessibility-requirements.md`)
@@ -163,6 +167,16 @@ scale. Do not claim conformance anywhere; the audit has not happened.
 - **`flutter analyze` fails on infos**, including `require_trailing_commas` in tests. Run
   `./tool/dev.sh ci` rather than relying on `flutter test` alone.
 
+## Release work (`docs/release/`)
+
+- `ci.yml` builds and verifies without credentials. `release.yml` is the only workflow
+  that may touch signing material, and only from the `release` environment's secrets.
+  `deploy-web.yml` is manual. Neither of the last two has ever been run; say so if asked.
+- An internal review is not an audit. `docs/release/security-review.md` and
+  `performance-review.md` are labelled as the author's own; do not cite them as assurance.
+- The accessibility audit, the legal review and the editorial review of draft content have
+  not happened. Do not tick them, and do not write copy that implies they have.
+
 ## Run the tests before claiming work is done
 
 Work is not done until the checks pass. Run:
@@ -170,6 +184,13 @@ Work is not done until the checks pass. Run:
 ```sh
 ./tool/dev.sh test    # every package's tests
 ./tool/dev.sh ci      # format check + analyze + test, exactly as CI does
+```
+
+For a change that could affect what the web build loads (fonts, assets, `web/`, a new
+dependency), also run:
+
+```sh
+./tool/build_web.sh && node tool/web_audit/audit.cjs
 ```
 
 Never report a change as complete without having run the tests and seen them pass. If

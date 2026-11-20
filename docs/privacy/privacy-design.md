@@ -86,11 +86,19 @@ undergraduates will be used by some people under 18 — both need review before 
 
 ## Known technical leak paths
 
-- **Web fonts.** Flutter's CanvasKit renderer can fetch fallback fonts from Google-hosted
-  URLs at runtime, which discloses the user's IP to a third party. Self-host CanvasKit
-  (`--web-renderer` configuration and `FLUTTER_WEB_CANVASKIT_URL`) before making any "no
-  third-party requests" claim. Icon and Material fonts are already bundled.
+- **Web fonts and the renderer: closed for the default build.** A stock Flutter web build
+  downloads CanvasKit and Roboto from Google-hosted addresses and reaches for more fonts
+  when it meets a character it cannot draw. The release build
+  (`tool/build_web.sh`) serves all of it from its own origin, and
+  `tool/web_audit/audit.cjs` proves it with a browser network trace on every pull request.
+  The cost is that typed text in scripts outside Latin, Greek and Cyrillic is drawn as
+  empty boxes on the web. See `docs/release/web-hosting.md`, including what may and may
+  not be claimed.
+- **The landing page** (`docs/index.html`) is not the app. It loads the README from
+  GitHub's API, so visiting it discloses the visitor's address to GitHub.
 - **Store and platform telemetry** is outside the app's control; document it rather than
   claim it away.
+- **Hosting logs.** Whoever serves the web build or the account server sees network
+  addresses. The app cannot prevent that and does not claim to.
 - **CI artefacts.** Build artefacts uploaded by workflows must never include user data;
   they currently include only compiled output.

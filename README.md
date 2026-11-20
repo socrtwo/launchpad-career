@@ -14,12 +14,15 @@ guaranteed-employment claims.
 
 ## Project status
 
-**Phases 1 to 5 are built and tested**: the home screen, onboarding questions, opt-in local
-storage with export and deletion, career exploration (browse, compare, save, rule-based
-suggestions with visible reasons, action plans), the employment tools (weekly job-search
-plan, résumé and LinkedIn guides, interview practice, skills plan, progress), and an
-optional account with explicit, consented sync, backed by a small server in
-`services/launchpad_server`.
+**Phases 1 to 5 are built and tested, and Phase 6 (release) is prepared but nothing is
+released.** Built: the home screen, onboarding questions, opt-in local storage with export
+and deletion, career exploration (browse, compare, save, rule-based suggestions with
+visible reasons, action plans), the employment tools (weekly job-search plan, résumé and
+LinkedIn guides, interview practice, skills plan, progress), and an optional account with
+explicit, consented sync, backed by a small server in `services/launchpad_server`.
+Prepared: a web build that makes no third-party requests (proved by a browser network
+trace in CI), release and deployment workflows, and briefs for the reviews that only
+people can do.
 
 What "built" does not mean, and the interface says so wherever it matters:
 
@@ -28,6 +31,10 @@ What "built" does not mean, and the interface says so wherever it matters:
 - No pay figures are loaded yet, so none are shown.
 - The server is not deployed anywhere and has not been independently security-reviewed.
   The default build has no accounts and makes no network requests.
+- Nothing is deployed, signed or submitted to a store. The release and deployment
+  workflows have never been run.
+- There has been no accessibility audit, no legal or privacy review, and no independent
+  security review. The product claims no conformance and no compliance.
 
 The record of what is done is [`docs/product/roadmap.md`](docs/product/roadmap.md).
 
@@ -46,11 +53,15 @@ them.
 
 ## Screenshots
 
-_Placeholder._ Add `docs/product/screenshots/` images here once the home screen is final:
+Captured from the release web build by `tool/web_audit/audit.cjs`.
 
-| Phone | Tablet | Desktop / web |
+| Phone | Tablet | Desktop |
 | --- | --- | --- |
-| _pending_ | _pending_ | _pending_ |
+| ![Home on a phone](docs/product/screenshots/home-phone.png) | ![Home on a tablet](docs/product/screenshots/home-tablet.png) | ![Home on a desktop](docs/product/screenshots/home-desktop.png) |
+| ![Comparing two occupations on a phone](docs/product/screenshots/compare-phone.png) | ![An interview question on a phone](docs/product/screenshots/interview-phone.png) | ![An occupation in dark mode](docs/product/screenshots/occupation-desktop-dark.png) |
+
+More in [`docs/product/screenshots/`](docs/product/screenshots/). Native builds have not
+been captured.
 
 ## Supported platforms
 
@@ -212,11 +223,14 @@ in bulk with `tool/create_issues.sh` (requires the `gh` CLI).
   pilots only. There is no passphrase reset, by design: no contact details are collected.
 - Without an account, answers survive a restart only if the person chooses "Save on this
   device"; they can be exported or deleted under Your data.
-- Web, and only web, has been build-verified here. Android, iOS, Windows, macOS and Linux
-  builds are wired into CI but have not been run on this machine.
+- CI builds the web release and unsigned debug builds for Android, Windows and macOS on
+  every pull request. iOS and Linux have never been built, and no native build has been
+  run on a real device.
 - Localisation is structured but single-locale (`en`). Strings live in
   `lib/src/l10n/app_strings.dart`, not yet in ARB files.
-- Icon fonts are bundled, but on the web Flutter's CanvasKit renderer may still fetch
-  fallback fonts from Google servers; self-host CanvasKit before any privacy claim is made.
-  See the privacy doc.
-- No signing, store credentials, or release automation. Deliberately.
+- On the web, text you type in scripts other than Latin, Greek and Cyrillic is drawn as
+  empty boxes. That is the price of the web build fetching no fonts from a third party;
+  [`docs/release/web-hosting.md`](docs/release/web-hosting.md) explains the trade-off and
+  how to lift it.
+- No signing credentials exist. `release.yml` and `deploy-web.yml` are written and have
+  never been run; see [`docs/release/release-process.md`](docs/release/release-process.md).

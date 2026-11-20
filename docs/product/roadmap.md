@@ -1,9 +1,11 @@
 # Roadmap
 
 Phases 1, 2, 4 and 5 are built and Phase 3 is built except for importing real figures.
+Phase 6 is prepared as far as code and documents can take it; what remains needs people,
+accounts and credentials this project does not have.
+
 "Built" means implemented and tested in this repository. It does not mean deployed,
-audited or reviewed: those are Phase 6. Progress claims in the interface must match this
-document.
+audited or reviewed. Progress claims in the interface must match this document.
 
 ## Phase 1 — Foundation (complete)
 
@@ -79,27 +81,54 @@ person's own work; none of them sees a résumé or a profile, and none grades th
 The server (`services/launchpad_server`) is not deployed anywhere. An app built without
 `--dart-define=LAUNCHPAD_API_URL=…` has no accounts and makes no requests.
 
-## Phase 6 — Production releases
+## Phase 6 — Production releases (prepared; not released)
+
+Each item is split into what could be done in the repository and what could not.
 
 - [ ] Performance and security review
+  - [x] Internal review, written up with its method and its limits
+        (`docs/release/security-review.md`, `docs/release/performance-review.md`)
+  - [ ] Independent security review of the account server and its client
 - [ ] Accessibility audit by someone who uses assistive technology daily
+  - [x] Brief for the audit (`docs/release/accessibility-audit-brief.md`)
+  - [ ] The audit itself. No conformance claim until it is done
 - [ ] Legal and privacy review; only then may any compliance claim appear
+  - [x] Brief, data inventory and open questions (`docs/release/legal-review-brief.md`)
+  - [ ] The review itself; a reviewed privacy notice and terms of use
 - [ ] Store listings and metadata
+  - [x] Draft listing text and data-safety answers (`docs/release/store-listing.md`);
+        web screenshots (`docs/product/screenshots/`)
+  - [ ] Store accounts, native screenshots, submission
 - [ ] Signed builds in a separate credentialed workflow
+  - [x] `release.yml`: verification, audited web package, signed Android bundle that
+        checks its own signer, draft release notes. **Never run**: no signing key exists
+  - [ ] iOS, macOS and Windows signing, which need accounts and certificates
 - [ ] Web hosting and deployment
+  - [x] Release build that makes no third-party requests, proved by a browser network
+        trace in CI (`docs/release/web-hosting.md`)
+  - [x] `deploy-web.yml` for GitHub Pages. **Never run**: needs the Pages source switched
+        to GitHub Actions by the repository owner
+  - [ ] A deployment on a host that can set security headers
 - [ ] Monitoring and incident response
+  - [x] Runbook and the signals worth watching (`docs/release/incident-response.md`)
+  - [ ] An operator, an on-call arrangement, and something deployed to watch
+
+Also open before any public release: editorial review of the draft content
+(`docs/product/content-review.md`), the labour-market data import (Phase 3), and a real
+contact address in `SECURITY.md`.
 
 ## Release strategy (documented, not implemented)
 
 | Channel | Requirements | Status |
 | --- | --- | --- |
-| Google Play | Play Console account, upload key, signed AAB, data-safety form | not started |
+| Google Play | Play Console account, upload key, signed AAB, data-safety form | workflow and draft answers written; no account |
 | Apple App Store | Developer Program, provisioning, App Privacy details, review | not started |
 | Microsoft Store | Partner Center, MSIX packaging, signing | not started |
 | macOS distribution | Developer ID, notarisation, stapling | not started |
-| Web hosting | Static host, CSP, self-hosted CanvasKit | not started |
-| Versioning | SemVer tags `vX.Y.Z`, release notes generated from conventional commits | not started |
+| Web hosting | Static host, CSP, self-hosted CanvasKit | build and audit done; not deployed |
+| Versioning | SemVer tags `vX.Y.Z`, release notes generated from conventional commits | `tool/release_notes.sh`; no release tagged |
 
 No signing credentials, provisioning profiles, or store secrets are in this repository, and
-none may be added. Signed release workflows will live separately from the unsigned build
-verification in `ci.yml`.
+none may be added. The signed release workflow (`release.yml`) is separate from the
+unsigned build verification in `ci.yml` and reads its credentials from a protected
+environment. See `docs/release/release-process.md`.

@@ -1,0 +1,11 @@
+{
+  "name": "launchpad-web-audit",
+  "private": true,
+  "description": "Browser network audit for the Launchpad Career web build. Not part of the app.",
+  "scripts": {
+    "audit": "node audit.cjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.0"
+  }
+}

@@ -36,3 +36,18 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # Bundled, and registered under exactly the name "Roboto". Flutter's web
+  # engine downloads Roboto from fonts.gstatic.com unless the app's own font
+  # list contains a family with that name, and a download discloses the
+  # visitor's network address to a third party. Licensed under the Apache
+  # License 2.0; see fonts/LICENSE.txt. Checked by tool/web_audit/audit.cjs.
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: fonts/Roboto-Regular.ttf
+          weight: 400
+        - asset: fonts/Roboto-Medium.ttf
+          weight: 500
+        - asset: fonts/Roboto-Bold.ttf
+          weight: 700
